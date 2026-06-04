@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS collectors;
+DROP TABLE IF EXISTS storages;
+DROP TABLE IF EXISTS defenses;
+DROP TABLE IF EXISTS village_layout;
+DROP TABLE IF EXISTS user_army;
+DROP TABLE IF EXISTS attack_history;
+DROP TABLE IF EXISTS residence_properties;
+DROP TABLE IF EXISTS user_stats;
+DROP TABLE IF EXISTS tiers;
+DROP TABLE IF EXISTS mercenaries;
+DROP TABLE IF EXISTS buildings_master_table;
+DROP TABLE IF EXISTS creds;
