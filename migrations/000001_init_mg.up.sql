@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS mercenaries(
     movement_speed SMALLINT NOT NULL CHECK( movement_speed >= 0 ) ,
     mercenary_desc VARCHAR(512) ,
     unlock_level SMALLINT NOT NULL CHECK( unlock_level > 0 ) ,
+    mercenary_range SMALLINT NOT NULL CHECK( mercenary_range >= 1 ) ,
     CONSTRAINT unique_mercenary UNIQUE( mercenary_name, mercenary_level )
 );
 
@@ -97,6 +98,7 @@ CREATE TABLE IF NOT EXISTS tiers(
 
 CREATE TABLE IF NOT EXISTS defenses(
     building_id SMALLINT PRIMARY KEY REFERENCES buildings_master_table(building_id) ON DELETE CASCADE ,
+    defense_range SMALLINT NOT NULL CHECK( defense_range >= 1 ) ,
     dps SMALLINT NOT NULL CHECK( dps > 0 )
 );
 
