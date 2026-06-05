@@ -1,3 +1,5 @@
+CREATE TYPE BUILDING_TYPES AS ENUM( "defense", "storage", "collector" )
+
 CREATE TABLE IF NOT EXISTS creds(
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid() ,
     username VARCHAR(48) UNIQUE NOT NULL ,
@@ -67,6 +69,7 @@ CREATE INDEX defenders_idx ON attack_history(defender_id) ;
 
 CREATE TABLE IF NOT EXISTS buildings_master_table(
     building_id SMALLSERIAL PRIMARY KEY ,
+    building_type BUILDING_TYPES NOT NULL ,
     building_name VARCHAR(32) NOT NULL ,
     building_level SMALLINT NOT NULL CHECK( building_level >= 1 ) ,
     hp SMALLINT NOT NULL CHECK( hp > 0 ) ,
