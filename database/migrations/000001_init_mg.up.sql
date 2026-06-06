@@ -1,4 +1,4 @@
-CREATE TYPE BUILDING_TYPES AS ENUM( 'defense', 'storage', 'collector' )
+CREATE TYPE BUILDING_TYPES AS ENUM( 'defense', 'storage', 'collector' );
 
 CREATE TABLE IF NOT EXISTS creds(
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid() ,
