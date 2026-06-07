@@ -10,7 +10,7 @@ var DATABASE_URL string
 var JWT_SECRET string
 
 func LoadEnvVars() error {
-	if err:= godotenv.Load(); err != nil {
+	if err:= godotenv.Load(".env.sample"); err != nil {
 		err = fmt.Errorf("failed to load environment variables: %w", err)
 		return err
 	}
