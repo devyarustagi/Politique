@@ -69,7 +69,7 @@ CREATE INDEX attackers_idx ON attack_history(attacker_id) ;
 CREATE INDEX defenders_idx ON attack_history(defender_id) ;
 
 CREATE TABLE IF NOT EXISTS buildings_master_table(
-    building_id SMALL PRIMARY KEY ,
+    building_id SMALLINT PRIMARY KEY ,
     building_type BUILDING_TYPES NOT NULL ,
     building_name VARCHAR(32) NOT NULL ,
     building_level SMALLINT NOT NULL CHECK( building_level >= 1 ) ,
@@ -90,8 +90,8 @@ CREATE TABLE IF NOT EXISTS village_layout(
     y_coordinate SMALLINT NOT NULL ,
     upgrade_completion_timestamp TIMESTAMPTZ ,
     CONSTRAINT unique_location UNIQUE(user_id, x_coordinate, y_coordinate) ,
-    CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 30 ) ,
-    CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 30 ) 
+    CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 40 ) ,
+    CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 40 ) 
 );
 
 CREATE TABLE IF NOT EXISTS tiers(

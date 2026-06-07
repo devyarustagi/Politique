@@ -1,6 +1,27 @@
 -- name: RegisterNewUser :one
-INSERT INTO creds (username, pass_hash)
-VALUES ( $1, $2 )
+WITH new_user AS (
+    INSERT INTO creds (username, pass_hash)
+    VALUES ($1, $2)
+    RETURNING user_id
+),
+new_stats AS (
+    INSERT INTO user_stats (user_id)
+    SELECT user_id FROM new_user
+),
+new_residence AS (
+    INSERT INTO residence_properties (user_id, residence_level, gems, oil)
+    SELECT user_id, 1, 50, 1000 FROM new_user
+)
+INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
+SELECT user_id, v.type_id, v.x, v.y
+FROM new_user
+CROSS JOIN (
+    VALUES
+        (1::SMALLINT,  15::SMALLINT, 15::SMALLINT), 
+        (5::SMALLINT,  15::SMALLINT, 25::SMALLINT), 
+        (9::SMALLINT,  25::SMALLINT, 15::SMALLINT), 
+        (13::SMALLINT, 20::SMALLINT, 25::SMALLINT)  
+) AS v(type_id, x, y)
 RETURNING user_id;
 
 -- name: GetUserByName :one
