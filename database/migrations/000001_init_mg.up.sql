@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS creds(
     username VARCHAR(48) UNIQUE NOT NULL ,
     pass_hash VARCHAR(255) NOT NULL ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+    refresh_token_hash BYTEA UNIQUE ,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
@@ -102,7 +103,8 @@ CREATE TABLE IF NOT EXISTS tiers(
 CREATE TABLE IF NOT EXISTS defenses(
     building_id SMALLINT PRIMARY KEY REFERENCES buildings_master_table(building_id) ON DELETE CASCADE ,
     defense_range SMALLINT NOT NULL CHECK( defense_range >= 1 ) ,
-    dps SMALLINT NOT NULL CHECK( dps > 0 )
+    dps SMALLINT NOT NULL CHECK( dps > 0 ) ,
+    attack_rate SMALLINT NOT NULL CHECK( attack_rate > 0 ) 
 );
 
 CREATE TABLE IF NOT EXISTS storages(

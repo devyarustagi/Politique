@@ -85,17 +85,19 @@ type Collector struct {
 }
 
 type Cred struct {
-	UserID    uuid.UUID
-	Username  string
-	PassHash  string
-	CreatedAt pgtype.Timestamptz
-	IsDeleted bool
+	UserID           uuid.UUID
+	Username         string
+	PassHash         string
+	CreatedAt        pgtype.Timestamptz
+	RefreshTokenHash []byte
+	IsDeleted        bool
 }
 
 type Defense struct {
 	BuildingID   int16
 	DefenseRange int16
 	Dps          int16
+	AttackRate   int16
 }
 
 type Mercenary struct {

@@ -44,3 +44,19 @@ func (q *Queries) RegisterNewUser(ctx context.Context, arg RegisterNewUserParams
 	err := row.Scan(&user_id)
 	return user_id, err
 }
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE creds 
+SET refresh_token_hash = $2
+WHERE user_id = $1
+`
+
+type UpdateRefreshTokenParams struct {
+	UserID           uuid.UUID
+	RefreshTokenHash []byte
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.Exec(ctx, updateRefreshToken, arg.UserID, arg.RefreshTokenHash)
+	return err
+}
