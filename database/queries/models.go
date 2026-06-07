@@ -8,6 +8,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -84,7 +85,7 @@ type Collector struct {
 }
 
 type Cred struct {
-	UserID    pgtype.UUID
+	UserID    uuid.UUID
 	Username  string
 	PassHash  string
 	CreatedAt pgtype.Timestamptz
@@ -111,7 +112,7 @@ type Mercenary struct {
 }
 
 type ResidenceProperty struct {
-	UserID            pgtype.UUID
+	UserID            uuid.UUID
 	ResidenceLevel    int16
 	Gems              int32
 	Oil               int32
@@ -131,13 +132,13 @@ type Tier struct {
 }
 
 type UserArmy struct {
-	UserID      pgtype.UUID
+	UserID      uuid.UUID
 	MercenaryID int16
 	Count       int16
 }
 
 type UserStat struct {
-	UserID        pgtype.UUID
+	UserID        uuid.UUID
 	TotalAttacks  int32
 	AttacksWon    int32
 	TotalDefenses int32
@@ -147,7 +148,7 @@ type UserStat struct {
 }
 
 type VillageLayout struct {
-	UserID                     pgtype.UUID
+	UserID                     uuid.UUID
 	GlobalID                   int64
 	TypeID                     int16
 	XCoordinate                int16

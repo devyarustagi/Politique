@@ -9,5 +9,6 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux{
 	r:= chi.NewRouter()
 	handler:= handlers.New(pool)
 	r.Post("/register", handler.Register)
+	r.Post("/login", handler.Login)
 
 }

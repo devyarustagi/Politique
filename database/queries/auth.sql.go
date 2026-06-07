@@ -7,11 +7,30 @@ package queries
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
-const registerNewUser = `-- name: RegisterNewUser :exec
+const getUserByName = `-- name: GetUserByName :one
+SELECT pass_hash, user_id FROM creds WHERE username = $1
+`
+
+type GetUserByNameRow struct {
+	PassHash string
+	UserID   uuid.UUID
+}
+
+func (q *Queries) GetUserByName(ctx context.Context, username string) (GetUserByNameRow, error) {
+	row := q.db.QueryRow(ctx, getUserByName, username)
+	var i GetUserByNameRow
+	err := row.Scan(&i.PassHash, &i.UserID)
+	return i, err
+}
+
+const registerNewUser = `-- name: RegisterNewUser :one
 INSERT INTO creds (username, pass_hash)
 VALUES ( $1, $2 )
+RETURNING user_id
 `
 
 type RegisterNewUserParams struct {
@@ -19,7 +38,9 @@ type RegisterNewUserParams struct {
 	PassHash string
 }
 
-func (q *Queries) RegisterNewUser(ctx context.Context, arg RegisterNewUserParams) error {
-	_, err := q.db.Exec(ctx, registerNewUser, arg.Username, arg.PassHash)
-	return err
+func (q *Queries) RegisterNewUser(ctx context.Context, arg RegisterNewUserParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, registerNewUser, arg.Username, arg.PassHash)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
 }
