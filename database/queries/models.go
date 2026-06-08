@@ -7,6 +7,7 @@ package queries
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -85,12 +86,13 @@ type Collector struct {
 }
 
 type Cred struct {
-	UserID           uuid.UUID
-	Username         string
-	PassHash         string
-	CreatedAt        pgtype.Timestamptz
-	RefreshTokenHash []byte
-	IsDeleted        bool
+	UserID             uuid.UUID
+	Username           string
+	PassHash           string
+	CreatedAt          pgtype.Timestamptz
+	RefreshTokenHash   []byte
+	IsDeleted          bool
+	RefreshTokenExpiry time.Time
 }
 
 type Defense struct {
@@ -118,8 +120,8 @@ type ResidenceProperty struct {
 	ResidenceLevel    int16
 	Gems              int32
 	Oil               int32
-	OilLastCollected  pgtype.Timestamptz
-	GemsLastCollected pgtype.Timestamptz
+	OilLastCollected  time.Time
+	GemsLastCollected time.Time
 }
 
 type Storage struct {
@@ -155,5 +157,5 @@ type VillageLayout struct {
 	TypeID                     int16
 	XCoordinate                int16
 	YCoordinate                int16
-	UpgradeCompletionTimestamp pgtype.Timestamptz
+	UpgradeCompletionTimestamp time.Time
 }

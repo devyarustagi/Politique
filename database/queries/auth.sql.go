@@ -7,6 +7,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -27,9 +28,46 @@ func (q *Queries) GetUserByName(ctx context.Context, username string) (GetUserBy
 	return i, err
 }
 
+const getUserbyRTHash = `-- name: GetUserbyRTHash :one
+SELECT user_id, refresh_token_expiry FROM creds WHERE refresh_token_hash = $1
+`
+
+type GetUserbyRTHashRow struct {
+	UserID             uuid.UUID
+	RefreshTokenExpiry time.Time
+}
+
+func (q *Queries) GetUserbyRTHash(ctx context.Context, refreshTokenHash []byte) (GetUserbyRTHashRow, error) {
+	row := q.db.QueryRow(ctx, getUserbyRTHash, refreshTokenHash)
+	var i GetUserbyRTHashRow
+	err := row.Scan(&i.UserID, &i.RefreshTokenExpiry)
+	return i, err
+}
+
 const registerNewUser = `-- name: RegisterNewUser :one
-INSERT INTO creds (username, pass_hash)
-VALUES ( $1, $2 )
+WITH new_user AS (
+    INSERT INTO creds (username, pass_hash)
+    VALUES ($1, $2)
+    RETURNING user_id
+),
+new_stats AS (
+    INSERT INTO user_stats (user_id)
+    SELECT user_id FROM new_user
+),
+new_residence AS (
+    INSERT INTO residence_properties (user_id, residence_level, gems, oil)
+    SELECT user_id, 1, 50, 1000 FROM new_user
+)
+INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
+SELECT user_id, v.type_id, v.x, v.y
+FROM new_user
+CROSS JOIN (
+    VALUES
+        (1::SMALLINT,  15::SMALLINT, 15::SMALLINT), 
+        (5::SMALLINT,  15::SMALLINT, 25::SMALLINT), 
+        (9::SMALLINT,  25::SMALLINT, 15::SMALLINT), 
+        (13::SMALLINT, 20::SMALLINT, 25::SMALLINT)  
+) AS v(type_id, x, y)
 RETURNING user_id
 `
 
@@ -47,16 +85,19 @@ func (q *Queries) RegisterNewUser(ctx context.Context, arg RegisterNewUserParams
 
 const updateRefreshToken = `-- name: UpdateRefreshToken :exec
 UPDATE creds 
-SET refresh_token_hash = $2
+SET 
+refresh_token_hash = $2,
+refresh_token_expiry = $3
 WHERE user_id = $1
 `
 
 type UpdateRefreshTokenParams struct {
-	UserID           uuid.UUID
-	RefreshTokenHash []byte
+	UserID             uuid.UUID
+	RefreshTokenHash   []byte
+	RefreshTokenExpiry time.Time
 }
 
 func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
-	_, err := q.db.Exec(ctx, updateRefreshToken, arg.UserID, arg.RefreshTokenHash)
+	_, err := q.db.Exec(ctx, updateRefreshToken, arg.UserID, arg.RefreshTokenHash, arg.RefreshTokenExpiry)
 	return err
 }

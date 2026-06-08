@@ -1,16 +1,15 @@
 package handlers
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/devyarustagi/Politique/database/queries"
-	"github.com/devyarustagi/Politique/internal/config"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/devyarustagi/Politique/internal/auth"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -22,19 +21,28 @@ func init(){
 	dummyHash, _ = bcrypt.GenerateFromPassword([]byte("prevent_timing_attacks"), 12)
 }
 
-func issueTokensAndRedirect(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Request){
-	accessToken, err:= GenerateJwtAccessToken(uid)
+func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Request) bool{
+	accessToken, err:= auth.GenerateJwtAccessToken(uid)
 	if err != nil {
         log.Println("Error generating access token:", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return false
     }
-	refreshToken, err:= GenerateRefreshToken(h, uid, r)
+	byteslice, err:= auth.GenerateRefreshToken()
 	if err != nil {
         log.Println("Error generating refresh token:", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return false
     }
+	ctx:= r.Context()
+	hashArray:= sha256.Sum256(byteslice)
+	err = h.Queries.UpdateRefreshToken(ctx, queries.UpdateRefreshTokenParams{UserID: uid, RefreshTokenHash: hashArray[:], RefreshTokenExpiry: time.Now().Add(time.Hour * 24 * 7)})
+	if err != nil{
+		log.Printf("Could not store refresh token hash in db: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return false
+	}
+	refreshToken:= base64.URLEncoding.EncodeToString(byteslice)
     cookie1 := &http.Cookie{
         Name: "jwt-access-token",
         Value: accessToken,
@@ -54,44 +62,28 @@ func issueTokensAndRedirect(h *Handler, uid uuid.UUID, w http.ResponseWriter, r 
 
 	http.SetCookie(w, cookie1)
 	http.SetCookie(w, cookie2)
-	http.Redirect(w, r, "/residence", http.StatusSeeOther)
+	return true
 }
 
-
-
-func GenerateJwtAccessToken(uid uuid.UUID) ( string, error) {
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-        "sub": uid.String(), 
-        "exp": time.Now().Add(time.Minute * 15).Unix(), 
-    })
-    token, err:= claims.SignedString([]byte(config.JWT_SECRET))
-    return token, err
+type LoginRequest struct{
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
-
-func GenerateRefreshToken(h *Handler, uid uuid.UUID, r *http.Request) (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	ctx:= r.Context()
-	hashArray:= sha256.Sum256(b)
-	err = h.Queries.UpdateRefreshToken(ctx, queries.UpdateRefreshTokenParams{UserID: uid, RefreshTokenHash: hashArray[:]})
-	if err != nil{
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(b), err
-}
-
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request){
 	ctx:= r.Context()
-	if err:= r.ParseForm(); err != nil{
-		log.Printf("error in parsing form: %v",err)
-		http.Error(w, "invalid form data", http.StatusBadRequest)
+	
+	var req LoginRequest
+	err:= json.NewDecoder(r.Body).Decode(&req)
+	defer r.Body.Close()
+	if err != nil{
+		http.Error(w, "invalid request", http.StatusBadRequest)
+		return
 	}
-	username:= r.PostForm.Get("username")
-	password:= r.PostForm.Get("password")
+	
+	username:= req.Username
+	password:= req.Password
+
 	if username == "" || password == ""{
 		http.Error(w, "username and password fields are required", http.StatusBadRequest)
 		return
@@ -111,16 +103,30 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "account could not be created, username already taken", http.StatusConflict)
 		return
 	}
-	issueTokensAndRedirect(h, res, w ,r)
+
+	success:= issueTokens(h, res, w ,r)
+	if success == false{
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
 }
 
 
 
 func (h *Handler) Login( w http.ResponseWriter, r *http.Request){
 	ctx:= r.Context()
-	r.ParseForm()
-	username:= r.PostForm.Get("username")
-	password:= r.PostForm.Get("password")
+
+	var req LoginRequest
+	err:= json.NewDecoder(r.Body).Decode(&req)
+	defer r.Body.Close()
+	if err != nil{
+		http.Error(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+
+	username:= req.Username
+	password:= req.Password
+
 	if username == "" || password == ""{
 		http.Error(w, "username and password fields must not be empty", http.StatusBadRequest)
 		return
@@ -139,5 +145,45 @@ func (h *Handler) Login( w http.ResponseWriter, r *http.Request){
 		http.Error(w, "invalid username or password", http.StatusUnauthorized)
 		return
 	}
-    issueTokensAndRedirect(h, res.UserID, w, r)
+
+    success:= issueTokens(h, res.UserID, w, r)
+	if success == false{
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request){
+	cookie, err:= r.Cookie("jwt-refresh-token")
+	if err != nil{
+		http.Error(w, "refresh token missing", http.StatusBadRequest)
+		return
+	}
+	refreshToken, err:= base64.URLEncoding.DecodeString(cookie.Value)
+	if err != nil{
+		http.Error(w, "invalid refresh token", http.StatusUnauthorized)
+		return
+	}
+	hash:= sha256.Sum256(refreshToken)
+	user, err:= h.Queries.GetUserbyRTHash(r.Context(), hash[:])
+	if err == pgx.ErrNoRows{
+		http.Error(w, "invalid refresh token", http.StatusUnauthorized)
+		return
+	}
+	if err != nil{
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		log.Printf("Could not fetch user from refresh token: %v", err)
+		return
+	}
+	//even though the refresh token cookie might have expired yet an attacker might be able to forge
+	//it even after expiration if somehow they gained access to it previously thus add this check for safety
+	if time.Now().Unix() > user.RefreshTokenExpiry.Unix() {
+		http.Error(w, "invalid refresh token", http.StatusUnauthorized)
+		return
+	}
+	success:= issueTokens(h, user.UserID, w, r)
+	if success == false{
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

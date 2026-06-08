@@ -29,5 +29,10 @@ SELECT pass_hash, user_id FROM creds WHERE username = $1 ;
 
 -- name: UpdateRefreshToken :exec
 UPDATE creds 
-SET refresh_token_hash = $2
+SET 
+refresh_token_hash = $2,
+refresh_token_expiry = $3
 WHERE user_id = $1;
+
+-- name: GetUserbyRTHash :one
+SELECT user_id, refresh_token_expiry FROM creds WHERE refresh_token_hash = $1;

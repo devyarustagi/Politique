@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/http"
+
 	"github.com/devyarustagi/Politique/internal/config"
 	"github.com/devyarustagi/Politique/internal/db"
 	"github.com/devyarustagi/Politique/internal/router"
@@ -20,5 +22,6 @@ func main(){
 	}
 	log.Println("Database connection successful.")
 	r:= router.RouterSetup(pool)
+	http.ListenAndServe(":3000", r)
 	
 }
