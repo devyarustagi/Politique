@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/devyarustagi/Politique/database/queries"
+	"github.com/devyarustagi/Politique/internal/db"
 	"github.com/devyarustagi/Politique/internal/auth"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -36,7 +36,7 @@ func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Reque
     }
 	ctx:= r.Context()
 	hashArray:= sha256.Sum256(byteslice)
-	err = h.Queries.UpdateRefreshToken(ctx, queries.UpdateRefreshTokenParams{UserID: uid, RefreshTokenHash: hashArray[:], RefreshTokenExpiry: time.Now().Add(time.Hour * 24 * 7)})
+	err = h.Queries.UpdateRefreshToken(ctx, db.UpdateRefreshTokenParams{UserID: uid, RefreshTokenHash: hashArray[:], RefreshTokenExpiry: time.Now().Add(time.Hour * 24 * 7)})
 	if err != nil{
 		log.Printf("Could not store refresh token hash in db: %v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -98,7 +98,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	res, err:= h.Queries.RegisterNewUser(ctx, queries.RegisterNewUserParams{Username: username, PassHash: string(passwordHash)})
+	res, err:= h.Queries.RegisterNewUser(ctx, db.RegisterNewUserParams{Username: username, PassHash: string(passwordHash)})
 	if err != nil{
 		http.Error(w, "account could not be created, username already taken", http.StatusConflict)
 		return

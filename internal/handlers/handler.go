@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"github.com/devyarustagi/Politique/database/queries"
+	"github.com/devyarustagi/Politique/internal/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Handler struct{
 	Pool *pgxpool.Pool
-	Queries *queries.Queries
+	Queries *db.Queries
 }
 
 func New(pool *pgxpool.Pool) (*Handler){
 	return &Handler{Pool: pool, 
-		Queries: queries.New(pool),
+		Queries: db.New(pool),
 	}
 }

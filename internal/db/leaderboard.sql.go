@@ -3,7 +3,7 @@
 //   sqlc v1.31.1
 // source: leaderboard.sql
 
-package queries
+package db
 
 import (
 	"context"
