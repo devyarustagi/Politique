@@ -13,17 +13,18 @@ import (
 
 func main(){
 	if err:= config.LoadEnvVars(); err != nil{
-		log.Printf("Error: %v",err)
-		return
+		log.Fatalf("Error: %v",err)
 	}
 	pool,err:= ConnectDB()
 	if err != nil {
-		log.Printf("Error: %v",err)
-		return
+		log.Fatalf("Error: %v",err)
 	}
 	log.Println("Database connection successful.")
 	r:= router.RouterSetup(pool)
+	defer pool.Close()
+	
 	http.ListenAndServe(":3000", r)
+	
 	
 }
 
