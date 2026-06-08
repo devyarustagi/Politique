@@ -75,9 +75,9 @@ CREATE TABLE IF NOT EXISTS buildings_master_table(
     building_level SMALLINT NOT NULL CHECK( building_level >= 1 ) ,
     hp SMALLINT NOT NULL CHECK( hp > 0 ) ,
     tile_count SMALLINT NOT NULL CHECK( tile_count > 0 ) ,
-    upgrade_cost INT NOT NULL CHECK( upgrade_cost > 0 ) ,
+    upgrade_cost INT NOT NULL CHECK( upgrade_cost >= 0 ) ,
     building_desc VARCHAR(256) ,
-    unlock_level SMALLINT NOT NULL CHECK( unlock_level > 0 ) ,
+    unlock_level SMALLINT NOT NULL CHECK( unlock_level >= 0 ) ,
     upgrade_time INT NOT NULL CHECK( upgrade_time >= 0 ) ,
     CONSTRAINT unique_building UNIQUE( building_name , building_level )
 );
