@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS creds(
     pass_hash VARCHAR(255) NOT NULL ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP ,
     refresh_token_hash BYTEA UNIQUE ,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    refresh_token_expiry TIMESTAMPTZ 
 );
 
 CREATE TABLE IF NOT EXISTS user_stats(
