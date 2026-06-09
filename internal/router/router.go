@@ -2,7 +2,9 @@ package router
 
 import (
 	"os"
+
 	"github.com/devyarustagi/Politique/internal/handlers"
+	"github.com/devyarustagi/Politique/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,5 +23,12 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux{
 	r.Post("/api/auth/register", handler.Register)
 	r.Post("/api/auth/login", handler.Login)
 	r.Post("/api/auth/refresh", handler.Refresh) //endpoint to issue new jwt tokens
+
+	r.Group(func(r chi.Router) {
+        r.Use(middleware.JWTMiddleware)
+        r.Get("/api/user/load", handler.Load)
+		r.Get("/api/user/leaderboard", handler.GetLeaderboard)
+    })
+
 	return r
 }

@@ -17,8 +17,8 @@ SELECT pass_hash, user_id FROM creds WHERE username = $1
 `
 
 type GetUserByNameRow struct {
-	PassHash string
-	UserID   uuid.UUID
+	PassHash string    `json:"pass_hash"`
+	UserID   uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) GetUserByName(ctx context.Context, username string) (GetUserByNameRow, error) {
@@ -33,8 +33,8 @@ SELECT user_id, refresh_token_expiry FROM creds WHERE refresh_token_hash = $1
 `
 
 type GetUserbyRTHashRow struct {
-	UserID             uuid.UUID
-	RefreshTokenExpiry time.Time
+	UserID             uuid.UUID `json:"user_id"`
+	RefreshTokenExpiry time.Time `json:"refresh_token_expiry"`
 }
 
 func (q *Queries) GetUserbyRTHash(ctx context.Context, refreshTokenHash []byte) (GetUserbyRTHashRow, error) {
@@ -72,8 +72,8 @@ RETURNING user_id
 `
 
 type RegisterNewUserParams struct {
-	Username string
-	PassHash string
+	Username string `json:"username"`
+	PassHash string `json:"pass_hash"`
 }
 
 func (q *Queries) RegisterNewUser(ctx context.Context, arg RegisterNewUserParams) (uuid.UUID, error) {
@@ -92,9 +92,9 @@ WHERE user_id = $1
 `
 
 type UpdateRefreshTokenParams struct {
-	UserID             uuid.UUID
-	RefreshTokenHash   []byte
-	RefreshTokenExpiry time.Time
+	UserID             uuid.UUID `json:"user_id"`
+	RefreshTokenHash   []byte    `json:"refresh_token_hash"`
+	RefreshTokenExpiry time.Time `json:"refresh_token_expiry"`
 }
 
 func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {

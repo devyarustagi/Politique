@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS mercenaries(
     dps SMALLINT NOT NULL CHECK( dps > 0 ) ,
     housing_space SMALLINT NOT NULL CHECK( housing_space > 0 ) ,
     movement_speed SMALLINT NOT NULL CHECK( movement_speed >= 0 ) ,
-    mercenary_desc VARCHAR(512) ,
+    mercenary_desc VARCHAR(512) NOT NULL ,
     unlock_level SMALLINT NOT NULL CHECK( unlock_level > 0 ) ,
     mercenary_range SMALLINT NOT NULL CHECK( mercenary_range >= 1 ) ,
     CONSTRAINT unique_mercenary UNIQUE( mercenary_name, mercenary_level )
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS buildings_master_table(
     hp SMALLINT NOT NULL CHECK( hp > 0 ) ,
     tile_count SMALLINT NOT NULL CHECK( tile_count > 0 ) ,
     upgrade_cost INT NOT NULL CHECK( upgrade_cost >= 0 ) ,
-    building_desc VARCHAR(256) ,
+    building_desc VARCHAR(256) NOT NULL,
     unlock_level SMALLINT NOT NULL CHECK( unlock_level >= 0 ) ,
     upgrade_time INT NOT NULL CHECK( upgrade_time >= 0 ) ,
     CONSTRAINT unique_building UNIQUE( building_name , building_level )

@@ -7,9 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-
 	"github.com/devyarustagi/Politique/internal/db"
-	"github.com/devyarustagi/Politique/internal/auth"
+	"github.com/devyarustagi/Politique/internal/services/auth"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"

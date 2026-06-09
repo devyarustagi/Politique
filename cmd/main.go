@@ -1,28 +1,35 @@
 package main
 
 import (
-	"log"
-	"net/http"
 	"context"
 	"fmt"
+	"log"
+	"net/http"
 	"time"
+
 	"github.com/devyarustagi/Politique/internal/config"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/devyarustagi/Politique/internal/db"
 	"github.com/devyarustagi/Politique/internal/router"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main(){
 	if err:= config.LoadEnvVars(); err != nil{
 		log.Fatalf("Error: %v",err)
 	}
+
 	pool,err:= ConnectDB()
 	if err != nil {
 		log.Fatalf("Error: %v",err)
 	}
 	log.Println("Database connection successful.")
-	r:= router.RouterSetup(pool)
 	defer pool.Close()
-	
+
+	if err:= config.LoadGameConfigs(db.New(pool)); err != nil{
+		log.Fatalf("Error: %v", err)
+	}
+
+	r:= router.RouterSetup(pool)
 	http.ListenAndServe(":3000", r)
 	
 	

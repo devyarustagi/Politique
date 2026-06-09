@@ -34,8 +34,8 @@ func (e *BuildingTypes) Scan(src interface{}) error {
 }
 
 type NullBuildingTypes struct {
-	BuildingTypes BuildingTypes
-	Valid         bool // Valid is true if BuildingTypes is not NULL
+	BuildingTypes BuildingTypes `json:"building_types"`
+	Valid         bool          `json:"valid"` // Valid is true if BuildingTypes is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -57,105 +57,105 @@ func (ns NullBuildingTypes) Value() (driver.Value, error) {
 }
 
 type AttackHistory struct {
-	AttackID              int64
-	AttackerID            pgtype.UUID
-	DefenderID            pgtype.UUID
-	AttackTimestamp       pgtype.Timestamptz
-	AttackEvents          []byte
-	KarmaGained           int16
-	DestructionPercentage int16
+	AttackID              int64              `json:"attack_id"`
+	AttackerID            pgtype.UUID        `json:"attacker_id"`
+	DefenderID            pgtype.UUID        `json:"defender_id"`
+	AttackTimestamp       pgtype.Timestamptz `json:"attack_timestamp"`
+	AttackEvents          []byte             `json:"attack_events"`
+	KarmaGained           int16              `json:"karma_gained"`
+	DestructionPercentage int16              `json:"destruction_percentage"`
 }
 
 type BuildingsMasterTable struct {
-	BuildingID    int16
-	BuildingType  BuildingTypes
-	BuildingName  string
-	BuildingLevel int16
-	Hp            int16
-	TileCount     int16
-	UpgradeCost   int32
-	BuildingDesc  pgtype.Text
-	UnlockLevel   int16
-	UpgradeTime   int32
+	BuildingID    int16         `json:"building_id"`
+	BuildingType  BuildingTypes `json:"building_type"`
+	BuildingName  string        `json:"building_name"`
+	BuildingLevel int16         `json:"building_level"`
+	Hp            int16         `json:"hp"`
+	TileCount     int16         `json:"tile_count"`
+	UpgradeCost   int32         `json:"upgrade_cost"`
+	BuildingDesc  string        `json:"building_desc"`
+	UnlockLevel   int16         `json:"unlock_level"`
+	UpgradeTime   int32         `json:"upgrade_time"`
 }
 
 type Collector struct {
-	BuildingID      int16
-	ProductionRate  int32
-	StorageCapacity int32
+	BuildingID      int16 `json:"building_id"`
+	ProductionRate  int32 `json:"production_rate"`
+	StorageCapacity int32 `json:"storage_capacity"`
 }
 
 type Cred struct {
-	UserID             uuid.UUID
-	Username           string
-	PassHash           string
-	CreatedAt          pgtype.Timestamptz
-	RefreshTokenHash   []byte
-	IsDeleted          bool
-	RefreshTokenExpiry time.Time
+	UserID             uuid.UUID          `json:"user_id"`
+	Username           string             `json:"username"`
+	PassHash           string             `json:"pass_hash"`
+	CreatedAt          pgtype.Timestamptz `json:"created_at"`
+	RefreshTokenHash   []byte             `json:"refresh_token_hash"`
+	IsDeleted          bool               `json:"is_deleted"`
+	RefreshTokenExpiry time.Time          `json:"refresh_token_expiry"`
 }
 
 type Defense struct {
-	BuildingID   int16
-	DefenseRange int16
-	Dps          int16
-	AttackRate   int16
+	BuildingID   int16 `json:"building_id"`
+	DefenseRange int16 `json:"defense_range"`
+	Dps          int16 `json:"dps"`
+	AttackRate   int16 `json:"attack_rate"`
 }
 
 type Mercenary struct {
-	MercenaryID    int16
-	MercenaryName  string
-	MercenaryLevel int16
-	Hp             int16
-	Dps            int16
-	HousingSpace   int16
-	MovementSpeed  int16
-	MercenaryDesc  pgtype.Text
-	UnlockLevel    int16
-	MercenaryRange int16
+	MercenaryID    int16  `json:"mercenary_id"`
+	MercenaryName  string `json:"mercenary_name"`
+	MercenaryLevel int16  `json:"mercenary_level"`
+	Hp             int16  `json:"hp"`
+	Dps            int16  `json:"dps"`
+	HousingSpace   int16  `json:"housing_space"`
+	MovementSpeed  int16  `json:"movement_speed"`
+	MercenaryDesc  string `json:"mercenary_desc"`
+	UnlockLevel    int16  `json:"unlock_level"`
+	MercenaryRange int16  `json:"mercenary_range"`
 }
 
 type ResidenceProperty struct {
-	UserID            uuid.UUID
-	ResidenceLevel    int16
-	Gems              int32
-	Oil               int32
-	OilLastCollected  time.Time
-	GemsLastCollected time.Time
+	UserID            uuid.UUID `json:"user_id"`
+	ResidenceLevel    int16     `json:"residence_level"`
+	Gems              int32     `json:"gems"`
+	Oil               int32     `json:"oil"`
+	OilLastCollected  time.Time `json:"oil_last_collected"`
+	GemsLastCollected time.Time `json:"gems_last_collected"`
 }
 
 type Storage struct {
-	BuildingID      int16
-	StorageCapacity int32
+	BuildingID      int16 `json:"building_id"`
+	StorageCapacity int32 `json:"storage_capacity"`
 }
 
 type Tier struct {
-	Tier     string
-	MinKarma int32
-	MaxKarma int32
+	Tier     string `json:"tier"`
+	MinKarma int32  `json:"min_karma"`
+	MaxKarma int32  `json:"max_karma"`
 }
 
 type UserArmy struct {
-	UserID      uuid.UUID
-	MercenaryID int16
-	Count       int16
+	UserID      uuid.UUID `json:"user_id"`
+	MercenaryID int16     `json:"mercenary_id"`
+	Count       int16     `json:"count"`
 }
 
 type UserStat struct {
-	UserID        uuid.UUID
-	TotalAttacks  int32
-	AttacksWon    int32
-	TotalDefenses int32
-	DefensesWon   int32
-	Karma         int32
-	OilLooted     int64
+	UserID        uuid.UUID `json:"user_id"`
+	TotalAttacks  int32     `json:"total_attacks"`
+	AttacksWon    int32     `json:"attacks_won"`
+	TotalDefenses int32     `json:"total_defenses"`
+	DefensesWon   int32     `json:"defenses_won"`
+	Karma         int32     `json:"karma"`
+	OilLooted     int64     `json:"oil_looted"`
 }
 
 type VillageLayout struct {
-	UserID                     uuid.UUID
-	GlobalID                   int64
-	TypeID                     int16
-	XCoordinate                int16
-	YCoordinate                int16
-	UpgradeCompletionTimestamp time.Time
+	UserID                     uuid.UUID `json:"user_id"`
+	GlobalID                   int64     `json:"global_id"`
+	TypeID                     int16     `json:"type_id"`
+	XCoordinate                int16     `json:"x_coordinate"`
+	YCoordinate                int16     `json:"y_coordinate"`
+	UpgradeCompletionTimestamp time.Time `json:"upgrade_completion_timestamp"`
 }
