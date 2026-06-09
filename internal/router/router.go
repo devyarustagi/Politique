@@ -14,7 +14,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux{
     AllowedOrigins:   []string{os.Getenv("FRONTEND_URL")},
     AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
     AllowedHeaders:   []string{"Content-Type"},
-	AllowCredentials: true,
+	AllowCredentials: true, //setting cors config assuming my frontend and backend are on different ports, change this to false if not the case when developing frontend
 	}))
 
 	handler:= handlers.New(pool)
