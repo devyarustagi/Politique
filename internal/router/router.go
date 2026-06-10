@@ -30,6 +30,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux{
 		r.Get("/api/user/leaderboard", handler.GetLeaderboard)
 		r.Get("/api/user/army", handler.GetArmy)
 		r.Patch("/api/user/army", handler.PatchArmy)
+		r.Patch("/api/user/layout", handler.PatchLayout)
     })
 
 	return r
