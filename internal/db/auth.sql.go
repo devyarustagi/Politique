@@ -28,6 +28,17 @@ func (q *Queries) GetUserByName(ctx context.Context, username string) (GetUserBy
 	return i, err
 }
 
+const getUserResidenceLevel = `-- name: GetUserResidenceLevel :one
+SELECT residence_level FROM residence_properties WHERE user_id = $1
+`
+
+func (q *Queries) GetUserResidenceLevel(ctx context.Context, userID uuid.UUID) (int16, error) {
+	row := q.db.QueryRow(ctx, getUserResidenceLevel, userID)
+	var residence_level int16
+	err := row.Scan(&residence_level)
+	return residence_level, err
+}
+
 const getUserbyRTHash = `-- name: GetUserbyRTHash :one
 SELECT user_id, refresh_token_expiry FROM creds WHERE refresh_token_hash = $1
 `

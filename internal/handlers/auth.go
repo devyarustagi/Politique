@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 	"github.com/devyarustagi/Politique/internal/db"
-	"github.com/devyarustagi/Politique/internal/services/auth"
+	"github.com/devyarustagi/Politique/internal/services"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -21,13 +21,13 @@ func init(){
 }
 
 func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Request) bool{
-	accessToken, err:= auth.GenerateJwtAccessToken(uid)
+	accessToken, err:= services.GenerateJwtAccessToken(uid)
 	if err != nil {
         log.Println("Error generating access token:", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return false
     }
-	byteslice, err:= auth.GenerateRefreshToken()
+	byteslice, err:= services.GenerateRefreshToken()
 	if err != nil {
         log.Println("Error generating refresh token:", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)

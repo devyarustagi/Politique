@@ -57,7 +57,7 @@ func (q *Queries) Leaderboard(ctx context.Context) ([]LeaderboardRow, error) {
 
 const userPercentile = `-- name: UserPercentile :one
 SELECT 
-ROUND(PERCENT_RANK() OVER (ORDER BY karma ASC) * 100, 2) AS percentile
+ROUND((PERCENT_RANK() OVER (ORDER BY karma ASC) * 100) ::NUMERIC, 2) AS percentile
 FROM user_stats WHERE user_id = $1
 `
 

@@ -10,7 +10,7 @@ import (
 )
 
 const buildings = `-- name: Buildings :many
-SELECT building_id, building_type, building_name, building_level, hp, tile_count, upgrade_cost, building_desc, unlock_level, upgrade_time FROM buildings_master_table
+SELECT building_id, building_type, building_name, building_level, hp, tile_count, upgrade_cost, building_desc, unlock_level, upgrade_time FROM buildings_master_table ORDER BY building_id ASC
 `
 
 func (q *Queries) Buildings(ctx context.Context) ([]BuildingsMasterTable, error) {
@@ -45,7 +45,7 @@ func (q *Queries) Buildings(ctx context.Context) ([]BuildingsMasterTable, error)
 }
 
 const collectors = `-- name: Collectors :many
-SELECT building_id, production_rate, storage_capacity FROM collectors
+SELECT building_id, production_rate, storage_capacity FROM collectors ORDER BY building_id ASC
 `
 
 func (q *Queries) Collectors(ctx context.Context) ([]Collector, error) {
@@ -69,7 +69,7 @@ func (q *Queries) Collectors(ctx context.Context) ([]Collector, error) {
 }
 
 const defenses = `-- name: Defenses :many
-SELECT building_id, defense_range, dps, attack_rate FROM defenses
+SELECT building_id, defense_range, dps, attack_rate FROM defenses ORDER BY building_id ASC
 `
 
 func (q *Queries) Defenses(ctx context.Context) ([]Defense, error) {
@@ -98,7 +98,7 @@ func (q *Queries) Defenses(ctx context.Context) ([]Defense, error) {
 }
 
 const mercs = `-- name: Mercs :many
-SELECT mercenary_id, mercenary_name, mercenary_level, hp, dps, housing_space, movement_speed, mercenary_desc, unlock_level, mercenary_range FROM mercenaries
+SELECT mercenary_id, mercenary_name, mercenary_level, hp, dps, housing_space, movement_speed, mercenary_desc, unlock_level, mercenary_range FROM mercenaries ORDER BY mercenary_id ASC
 `
 
 func (q *Queries) Mercs(ctx context.Context) ([]Mercenary, error) {
@@ -133,7 +133,7 @@ func (q *Queries) Mercs(ctx context.Context) ([]Mercenary, error) {
 }
 
 const storages = `-- name: Storages :many
-SELECT building_id, storage_capacity FROM storages
+SELECT building_id, storage_capacity FROM storages ORDER BY building_id ASC
 `
 
 func (q *Queries) Storages(ctx context.Context) ([]Storage, error) {

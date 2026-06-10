@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/devyarustagi/Politique/internal/db"
-	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,14 +17,9 @@ type Leaderboard struct {
 func (h *Handler) GetLeaderboard(w http.ResponseWriter, r *http.Request) {
 	var l Leaderboard
 	var err error
-	uidStr, ok := r.Context().Value("user_id").(string)
+	uid, ok := ContextValueToUID(r)
 	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-	uid, err := uuid.Parse(uidStr)
-	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, "malformed uid", http.StatusUnauthorized)
 		return
 	}
 	grp, ctx:= errgroup.WithContext(r.Context())

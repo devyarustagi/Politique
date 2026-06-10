@@ -36,3 +36,6 @@ WHERE user_id = $1;
 
 -- name: GetUserbyRTHash :one
 SELECT user_id, refresh_token_expiry FROM creds WHERE refresh_token_hash = $1;
+
+-- name: GetUserResidenceLevel :one
+SELECT residence_level FROM residence_properties WHERE user_id = $1;

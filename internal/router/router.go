@@ -28,6 +28,8 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux{
         r.Use(middleware.JWTMiddleware)
         r.Get("/api/user/load", handler.Load)
 		r.Get("/api/user/leaderboard", handler.GetLeaderboard)
+		r.Get("/api/user/army", handler.GetArmy)
+		r.Patch("/api/user/army", handler.PatchArmy)
     })
 
 	return r
