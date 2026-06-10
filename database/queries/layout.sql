@@ -10,3 +10,10 @@ WHERE user_id = $1 AND global_id != $2;
 UPDATE village_layout 
 SET x_coordinate = $1, y_coordinate = $2
 WHERE global_id = $3;
+
+-- name: GetUserResidenceLvlandResources :one
+SELECT residence_level, oil, gems FROM residence_properties WHERE user_id = $1;
+
+-- name: AddBuilding :exec
+INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
+VALUES ($1, $2, $3, $4);

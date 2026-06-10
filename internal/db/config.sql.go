@@ -10,7 +10,7 @@ import (
 )
 
 const buildings = `-- name: Buildings :many
-SELECT building_id, building_type, building_name, building_level, hp, tile_count, upgrade_cost, building_desc, unlock_level, upgrade_time FROM buildings_master_table ORDER BY building_id ASC
+SELECT building_id, building_type, building_name, building_level, hp, tile_count, upgrade_cost, building_desc, unlock_level FROM buildings_master_table ORDER BY building_id ASC
 `
 
 func (q *Queries) Buildings(ctx context.Context) ([]BuildingsMasterTable, error) {
@@ -32,7 +32,6 @@ func (q *Queries) Buildings(ctx context.Context) ([]BuildingsMasterTable, error)
 			&i.UpgradeCost,
 			&i.BuildingDesc,
 			&i.UnlockLevel,
-			&i.UpgradeTime,
 		); err != nil {
 			return nil, err
 		}

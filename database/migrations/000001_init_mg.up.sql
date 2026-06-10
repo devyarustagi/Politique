@@ -79,7 +79,6 @@ CREATE TABLE IF NOT EXISTS buildings_master_table(
     upgrade_cost INT NOT NULL CHECK( upgrade_cost >= 0 ) ,
     building_desc VARCHAR(256) NOT NULL,
     unlock_level SMALLINT NOT NULL CHECK( unlock_level >= 0 ) ,
-    upgrade_time INT NOT NULL CHECK( upgrade_time >= 0 ) ,
     CONSTRAINT unique_building UNIQUE( building_name , building_level )
 );
 
@@ -89,7 +88,6 @@ CREATE TABLE IF NOT EXISTS village_layout(
     type_id SMALLINT NOT NULL REFERENCES buildings_master_table(building_id) ON DELETE CASCADE,
     x_coordinate SMALLINT NOT NULL ,
     y_coordinate SMALLINT NOT NULL ,
-    upgrade_completion_timestamp TIMESTAMPTZ ,
     CONSTRAINT unique_location UNIQUE(user_id, x_coordinate, y_coordinate) ,
     CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 36 ) ,
     CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 36 ) 

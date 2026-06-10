@@ -11,6 +11,28 @@ import (
 	"github.com/google/uuid"
 )
 
+const addBuilding = `-- name: AddBuilding :exec
+INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
+VALUES ($1, $2, $3, $4)
+`
+
+type AddBuildingParams struct {
+	UserID      uuid.UUID `json:"user_id"`
+	TypeID      int16     `json:"type_id"`
+	XCoordinate int16     `json:"x_coordinate"`
+	YCoordinate int16     `json:"y_coordinate"`
+}
+
+func (q *Queries) AddBuilding(ctx context.Context, arg AddBuildingParams) error {
+	_, err := q.db.Exec(ctx, addBuilding,
+		arg.UserID,
+		arg.TypeID,
+		arg.XCoordinate,
+		arg.YCoordinate,
+	)
+	return err
+}
+
 const getBuildingType = `-- name: GetBuildingType :one
 SELECT type_id FROM village_layout WHERE global_id = $1 AND user_id = $2
 `
@@ -62,6 +84,23 @@ func (q *Queries) GetOccupiedPositions(ctx context.Context, arg GetOccupiedPosit
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUserResidenceLvlandResources = `-- name: GetUserResidenceLvlandResources :one
+SELECT residence_level, oil, gems FROM residence_properties WHERE user_id = $1
+`
+
+type GetUserResidenceLvlandResourcesRow struct {
+	ResidenceLevel int16 `json:"residence_level"`
+	Oil            int32 `json:"oil"`
+	Gems           int32 `json:"gems"`
+}
+
+func (q *Queries) GetUserResidenceLvlandResources(ctx context.Context, userID uuid.UUID) (GetUserResidenceLvlandResourcesRow, error) {
+	row := q.db.QueryRow(ctx, getUserResidenceLvlandResources, userID)
+	var i GetUserResidenceLvlandResourcesRow
+	err := row.Scan(&i.ResidenceLevel, &i.Oil, &i.Gems)
+	return i, err
 }
 
 const updateBuildingPosition = `-- name: UpdateBuildingPosition :exec

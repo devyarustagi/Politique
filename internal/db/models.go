@@ -76,7 +76,6 @@ type BuildingsMasterTable struct {
 	UpgradeCost   int32         `json:"upgrade_cost"`
 	BuildingDesc  string        `json:"building_desc"`
 	UnlockLevel   int16         `json:"unlock_level"`
-	UpgradeTime   int32         `json:"upgrade_time"`
 }
 
 type Collector struct {
@@ -152,10 +151,9 @@ type UserStat struct {
 }
 
 type VillageLayout struct {
-	UserID                     uuid.UUID `json:"user_id"`
-	GlobalID                   int64     `json:"global_id"`
-	TypeID                     int16     `json:"type_id"`
-	XCoordinate                int16     `json:"x_coordinate"`
-	YCoordinate                int16     `json:"y_coordinate"`
-	UpgradeCompletionTimestamp time.Time `json:"upgrade_completion_timestamp"`
+	UserID      uuid.UUID `json:"user_id"`
+	GlobalID    int64     `json:"global_id"`
+	TypeID      int16     `json:"type_id"`
+	XCoordinate int16     `json:"x_coordinate"`
+	YCoordinate int16     `json:"y_coordinate"`
 }
