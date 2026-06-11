@@ -121,6 +121,8 @@ type ResidenceProperty struct {
 	Oil               int32     `json:"oil"`
 	OilLastCollected  time.Time `json:"oil_last_collected"`
 	GemsLastCollected time.Time `json:"gems_last_collected"`
+	InBattle          bool      `json:"in_battle"`
+	UnderAttack       bool      `json:"under_attack"`
 }
 
 type Storage struct {

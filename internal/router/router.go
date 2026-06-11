@@ -15,7 +15,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{os.Getenv("FRONTEND_URL")},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true, //setting cors config assuming my frontend and backend are on different ports, change this to false if not the case when developing frontend
 	}))
@@ -27,14 +27,20 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTMiddleware)
+		r.Use(middleware.UnderAttack(handler.Queries))
 		//r.Get("/api/user/load", handler.Load)
+		r.Patch("/api/user/layout/move", handler.PatchPosition)
+		r.Post("/api/user/layout", handler.PostBuilding)
+		r.Patch("/api/user/layout/upgrade", handler.PatchLevel)
+		r.Patch("/api/user/resources", handler.PatchCollectors)
+		r.Post("/api/user/battle", handler.StartBattle)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.JWTMiddleware)
 		r.Get("/api/user/leaderboard", handler.GetLeaderboard)
 		r.Get("/api/user/army", handler.GetArmy)
 		r.Patch("/api/user/army", handler.PatchArmy)
-		r.Patch("/api/user/layout/move", handler.PatchPosition)
-		r.Post("/api/users/layout", handler.PostBuilding)
-		r.Patch("/api/users/layout/upgrade", handler.PatchLevel)
 	})
-
 	return r
 }
