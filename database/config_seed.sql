@@ -103,7 +103,7 @@ ON CONFLICT ON CONSTRAINT unique_building DO UPDATE SET
     tile_count = EXCLUDED.tile_count,
     upgrade_cost = EXCLUDED.upgrade_cost,
     building_desc = EXCLUDED.building_desc,
-    unlock_level = EXCLUDED.unlock_level,
+    unlock_level = EXCLUDED.unlock_level;
 
 
 -- ── 4. DEFENSES sub-table ─────────────────────────────────────

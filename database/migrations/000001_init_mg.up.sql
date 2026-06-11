@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS residence_properties(
     oil INT NOT NULL CHECK( oil >= 0 ) DEFAULT 1000 ,
     oil_last_collected TIMESTAMPTZ ,  --default value will be null because initially user won't have unlocked oil collector
     gems_last_collected TIMESTAMPTZ ,
+    in_battle  BOOLEAN NOT NULL DEFAULT FALSE,
+    under_attack BOOLEAN NOT NULL DEFAULT FALSE,
     CONSTRAINT valid_collection_dates
     CHECK ( oil_last_collected >= '2026-01-01 00:00:00+05:30' AND gems_last_collected >= '2026-01-01 00:00:00+05:30' )
 );
