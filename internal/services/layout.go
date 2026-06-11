@@ -86,7 +86,7 @@ func NewBuilding(ctx context.Context, p *pgxpool.Pool, building *dtors.NewBuildi
 		if buildingInfo.UpgradeCost > residence.Oil {
 			return ErrInsufficientFunds
 		}
-	}
+	}	
 	tx, err := p.Begin(ctx)
 	if err != nil {
 		return err
@@ -120,11 +120,79 @@ func NewBuilding(ctx context.Context, p *pgxpool.Pool, building *dtors.NewBuildi
 		}
 	}
 	err = qtx.AddBuilding(ctx, db.AddBuildingParams{
-		UserID: uid,
-		TypeID: building.TypeID,
+		UserID:      uid,
+		TypeID:      building.TypeID,
 		XCoordinate: building.XCoordinate,
 		YCoordinate: building.YCoordinate,
 	})
+	if err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+func UpgradeBuilding(ctx context.Context, p *pgxpool.Pool, upgradeInfo *dtors.UpgradeBuildingInfo, uid uuid.UUID) error {
+	q := db.New(p)
+	if !(upgradeInfo.Resource == "oil" || upgradeInfo.Resource == "gems") {
+		return ErrInvalidResource
+	}
+	var typeID int16
+	var err error
+	if typeID, err = q.GetBuildingType(ctx, db.GetBuildingTypeParams{
+		GlobalID: upgradeInfo.GlobalID,
+		UserID:   uid,
+	}); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNoBuilding
+		} else {
+			return err
+		}
+	}
+	if int(typeID) > len(config.BMT) || typeID < 1 || config.BMT[typeID-1].UnlockLevel == config.MaxResidenceLvl{
+		//third check to see whether any more levels for the building exist or not
+		//safe to put third check in the last because || operator short circuits so never evaluated in case of OOB access attempts
+		return ErrNoBuilding
+	}
+	var residence db.GetUserResidenceLvlandResourcesRow
+	residence, err = q.GetUserResidenceLvlandResources(ctx, uid)
+	if err != nil {
+		return err
+	}
+	newLevelInfo:= config.BMT[typeID] //fetch info about next level, typeID is 1-indexed so BMT[typeID] = next level
+	if newLevelInfo.UnlockLevel > residence.ResidenceLevel {
+		return ErrBuildingLocked
+	}
+	if upgradeInfo.Resource == "gems" {
+		if newLevelInfo.UpgradeCost/100 > residence.Gems {
+			return ErrInsufficientFunds
+		}
+	} else {
+		if newLevelInfo.UpgradeCost > residence.Oil {
+			return ErrInsufficientFunds
+		}
+	}
+	tx, err := p.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	qtx := q.WithTx(tx)
+	if upgradeInfo.Resource == "oil" {
+		if err := qtx.SpendOil(ctx, db.SpendOilParams{
+			UserID: uid,
+			Oil:    newLevelInfo.UpgradeCost,
+		}); err != nil {
+			return err
+		}
+	} else {
+		if err := qtx.SpendGems(ctx, db.SpendGemsParams{
+			UserID: uid,
+			Gems:   newLevelInfo.UpgradeCost / 100,
+		}); err != nil {
+			return err
+		}
+	}
+	err = qtx.UpgradeBuilding(ctx, upgradeInfo.GlobalID)
 	if err != nil {
 		return err
 	}

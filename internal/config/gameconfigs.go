@@ -9,7 +9,7 @@ import (
 )
 
 const MapSize int16 = 40 //side length of the square map
-const MaxBuildingSize int16 = 4
+const MaxResidenceLvl int16 = 4
 var BMT []db.BuildingsMasterTable //BMT = Buildings Master Table
 var Defenses []db.Defense
 var Storages []db.Storage

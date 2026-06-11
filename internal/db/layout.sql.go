@@ -119,3 +119,13 @@ func (q *Queries) UpdateBuildingPosition(ctx context.Context, arg UpdateBuilding
 	_, err := q.db.Exec(ctx, updateBuildingPosition, arg.XCoordinate, arg.YCoordinate, arg.GlobalID)
 	return err
 }
+
+const upgradeBuilding = `-- name: UpgradeBuilding :exec
+UPDATE village_layout
+SET type_id = type_id + 1 WHERE global_id = $1
+`
+
+func (q *Queries) UpgradeBuilding(ctx context.Context, globalID int64) error {
+	_, err := q.db.Exec(ctx, upgradeBuilding, globalID)
+	return err
+}

@@ -10,7 +10,7 @@ import (
 	"github.com/devyarustagi/Politique/internal/services"
 )
 
-func (h *Handler) PatchLayout(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PatchPosition(w http.ResponseWriter, r *http.Request) {
 	uid, ok := ContextValueToUID(r)
 	if !ok {
 		http.Error(w, "malformed uid", http.StatusUnauthorized)
@@ -34,7 +34,7 @@ func (h *Handler) PatchLayout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handler) PostLayout(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostBuilding(w http.ResponseWriter, r *http.Request) {
 	uid, ok := ContextValueToUID(r)
 	if !ok {
 		http.Error(w, "malformed uid", http.StatusUnauthorized)
@@ -65,9 +65,30 @@ func (h *Handler) PostLayout(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//Create building :- type_id, x coordinate, y coordinate (also check whether enough resources for the same)
-//integrate gems for fast completion
-//Move building :- global_id, x coordinate, y coordinate
-//check within map
-//one sql query which returns slice with all user's building_sizes x coordinates and y coordinates, just requires user's id to do so and takes building_global id to exclude from search(pass zero in the case of the create new building fucntion )
-//position checker service takes in building_size and x coordinate and y coordinate, and array of other buildings
+func (h *Handler) PatchLevel(w http.ResponseWriter, r *http.Request) {
+	uid, ok := ContextValueToUID(r)
+	if !ok {
+		http.Error(w, "malformed uid", http.StatusUnauthorized)
+		return
+	}
+	var upgradeInfo dtors.UpgradeBuildingInfo
+	if err := json.NewDecoder(r.Body).Decode(&upgradeInfo); err != nil {
+		http.Error(w, "request cannot be decoded", http.StatusBadRequest)
+		return
+	}
+	err := services.UpgradeBuilding(r.Context(), h.Pool, &upgradeInfo, uid)
+	if err != nil {
+		if errors.Is(err, services.ErrBuildingLocked) ||
+			errors.Is(err, services.ErrInsufficientFunds) ||
+			errors.Is(err, services.ErrInvalidResource) ||
+			errors.Is(err, services.ErrNoBuilding) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		} else {
+			log.Printf("Error while adding new building: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+}
