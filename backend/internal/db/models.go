@@ -115,14 +115,15 @@ type Mercenary struct {
 }
 
 type ResidenceProperty struct {
-	UserID            uuid.UUID `json:"user_id"`
-	ResidenceLevel    int16     `json:"residence_level"`
-	Gems              int32     `json:"gems"`
-	Oil               int32     `json:"oil"`
-	OilLastCollected  time.Time `json:"oil_last_collected"`
-	GemsLastCollected time.Time `json:"gems_last_collected"`
-	InBattle          bool      `json:"in_battle"`
-	UnderAttack       bool      `json:"under_attack"`
+	UserID            uuid.UUID          `json:"user_id"`
+	ResidenceLevel    int16              `json:"residence_level"`
+	Gems              int32              `json:"gems"`
+	Oil               int32              `json:"oil"`
+	OilLastCollected  time.Time          `json:"oil_last_collected"`
+	GemsLastCollected time.Time          `json:"gems_last_collected"`
+	InBattle          bool               `json:"in_battle"`
+	UnderAttack       bool               `json:"under_attack"`
+	LastAttacked      pgtype.Timestamptz `json:"last_attacked"`
 }
 
 type Storage struct {
