@@ -1,4 +1,4 @@
-include .env.sample
+include backend/.env.sample
 export PATH := $(PATH):$(HOME)/go/bin:/usr/local/go/bin #so that make is able to find the golang-migrate tool
 export
 
