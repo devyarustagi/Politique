@@ -12,3 +12,6 @@ SELECT * FROM collectors ORDER BY building_id ASC;
 
 -- name: Mercs :many
 SELECT * FROM mercenaries ORDER BY mercenary_id ASC;
+
+-- name: Tiers :many
+SELECT * FROM tiers;

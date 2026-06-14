@@ -28,7 +28,6 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTMiddleware)
 		r.Use(middleware.UnderAttack(handler.Queries))
-		//r.Get("/api/user/load", handler.Load)
 		r.Patch("/api/user/layout/move", handler.PatchPosition)
 		r.Post("/api/user/layout", handler.PostBuilding)
 		r.Patch("/api/user/layout/upgrade", handler.PatchLevel)
@@ -39,6 +38,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JWTMiddleware)
 		r.Get("/api/user/leaderboard", handler.GetLeaderboard)
+		r.Get("/api/user/load", handler.Load)
 		r.Get("/api/user/army", handler.GetArmy)
 		r.Patch("/api/user/army", handler.PatchArmy)
 	})

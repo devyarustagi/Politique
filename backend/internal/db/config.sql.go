@@ -154,3 +154,27 @@ func (q *Queries) Storages(ctx context.Context) ([]Storage, error) {
 	}
 	return items, nil
 }
+
+const tiers = `-- name: Tiers :many
+SELECT tier, min_karma, max_karma FROM tiers
+`
+
+func (q *Queries) Tiers(ctx context.Context) ([]Tier, error) {
+	rows, err := q.db.Query(ctx, tiers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Tier
+	for rows.Next() {
+		var i Tier
+		if err := rows.Scan(&i.Tier, &i.MinKarma, &i.MaxKarma); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

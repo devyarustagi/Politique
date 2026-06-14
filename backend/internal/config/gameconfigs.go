@@ -15,6 +15,7 @@ var Defenses []db.Defense
 var Storages []db.Storage
 var Collectors []db.Collector
 var Mercs []db.Mercenary
+var Tiers []db.Tier
 
 
 func LoadGameConfigs(q *db.Queries) error {
@@ -42,6 +43,11 @@ func LoadGameConfigs(q *db.Queries) error {
 	grp.Go(func () error {
 		var err error 
 		Mercs, err = q.Mercs(ctx)
+		return err
+	})
+	grp.Go(func () error {
+		var err error 
+		Tiers, err = q.Tiers(ctx)
 		return err
 	})
 

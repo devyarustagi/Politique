@@ -22,7 +22,10 @@ func (q *Queries) DeleteUserArmy(ctx context.Context, userID uuid.UUID) error {
 }
 
 const getUserArmy = `-- name: GetUserArmy :many
-SELECT mercenary_id, count FROM user_army WHERE user_id = $1
+SELECT mercenary_id, count 
+FROM user_army 
+WHERE user_army.user_id = $1
+ORDER BY mercenary_id ASC
 `
 
 type GetUserArmyRow struct {
