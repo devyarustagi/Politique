@@ -1,14 +1,15 @@
-<script lang="ts">
+<script>
     import BgImage from '$lib/assets/Login.webp'; 
     import ErrorBox from '$lib/components/auth/error-box.svelte';
     import AuthLink from '$lib/components/auth/auth-link.svelte';
+    import { api } from '$lib/api.js'
     
-    let username: string = $state("");
-    let password: string = $state("");
-    let confirmPassword: string = $state("");
-    let errorMsg: string = $state("");
+    let username = $state("");
+    let password = $state("");
+    let confirmPassword = $state("");
+    let errorMsg = $state("");
     
-    async function handleRegister(event: Event) {
+    async function handleRegister(event) {
         event.preventDefault();
         errorMsg = "";
         console.log("Register triggered:", username);
@@ -20,7 +21,7 @@
         }
 
         try {
-            const response = await fetch("http://localhost:3000/api/auth/register", {
+            const response = await fetch(api.register(), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

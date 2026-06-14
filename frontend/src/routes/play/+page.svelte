@@ -1,0 +1,54 @@
+<script>
+    import { onMount } from 'svelte';
+    import Phaser from 'phaser';
+
+    // Normal JS! No types needed.
+    let gameContainer;
+    let game;
+
+    onMount(() => {
+        const config = {
+            type: Phaser.AUTO, 
+            scale: {
+                mode: Phaser.Scale.RESIZE,
+                parent: gameContainer,
+                width: '100%',
+                height: '100%'
+            },
+            backgroundColor: '#1a1a1a',
+            scene: {
+                create: function() {
+                    const text = this.add.text(50, 50, 'Vanilla JS is LIVE!', { 
+                        fontSize: '32px', 
+                        color: '#00ff00' 
+                    });
+                    
+                    this.scale.on('resize', (gameSize) => {
+                        text.setText(`Screen Size: ${gameSize.width} x ${gameSize.height}`);
+                    });
+                }
+            }
+        };
+
+        game = new Phaser.Game(config);
+
+        return () => {
+            game.destroy(true);
+        };
+    });
+</script>
+
+<div bind:this={gameContainer} class="game-viewport"></div>
+
+<style>
+    :global(body) {
+        margin: 0;
+        padding: 0;
+        overflow: hidden; 
+    }
+    .game-viewport {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+    }
+</style>
