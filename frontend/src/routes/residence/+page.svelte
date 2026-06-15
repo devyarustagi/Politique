@@ -7,7 +7,7 @@
 
     let gameContainer;
     let game;
-    $inspect(gameinfo);
+
     class ResidenceScene extends Phaser.Scene {
         constructor() {
             super('ResidenceScene');
@@ -22,63 +22,106 @@
         }
 
         create() {
-        const map = this.make.tilemap({ key: 'my_map' });
-        const tileset = map.addTilesetImage('grass', 'grass_img');
-        const layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
-        const tileSize = 32;
-        gameinfo.info.village_layout.forEach((buildingData) => {
-        
-        // Convert the Grid X/Y into exact Pixel X/Y for the center of the tile
-        console.log(buildingData.x_coordinate);
-        const pixelX = (buildingData.x_coordinate * tileSize) + (tileSize / 2);
-        const pixelY = (buildingData.y_coordinate * tileSize) + (tileSize / 2);
+            const map = this.make.tilemap({ key: 'my_map' });
+            const tileset = map.addTilesetImage('grass', 'grass_img');
+            const layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
+            const tileSize = 32;
+            this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+            let isDraggingBuilding = false;
+            this.buildingGroup = this.add.group({
+                classType: Phaser.GameObjects.Image,
+            })
+            const hitbox = this.add.rectangle(0, 0, 32, 32, 0x00FF00, 0.5);
+            hitbox.setOrigin(0, 0);
+            hitbox.setVisible(false);
+            this.input.on('dragstart', (pointer, gameObject) => { 
+                isDraggingBuilding = true;
+                gameObject.setData('startX', gameObject.x);
+                gameObject.setData('startY', gameObject.y);
+                hitbox.x = gameObject.x;
+                hitbox.y = gameObject.y;
+                hitbox.setDisplaySize(gameObject.displayWidth, gameObject.displayHeight);
+                hitbox.setVisible(true);                
+             });
+            this.input.on('dragend', (pointer, gameObject) => { 
+                isDraggingBuilding = false; 
+                hitbox.setVisible(false);
+            if (gameObject.getData('isValid') === false) {
+                gameObject.x = gameObject.getData('startX');
+                gameObject.y = gameObject.getData('startY');
+            }
+            hitbox.fillColor = 0x00FF00;
+            });
 
-        // Add the image. Notice we don't save this to a global variable!
-        // We just use a temporary 'building' variable for this single iteration.
-        const building = gameinfo.info.buildings_master_table[(buildingData.type_id)-1];
-        const building_img = this.add.image(pixelX, pixelY, 'buildings', `${building.building_name}${building.building_level}`);
-        building_img.setOrigin(0.5, 0.5);
+            this.input.on('pointermove', (pointer) => {
+                if (!pointer.isDown || isDraggingBuilding) return;
+                this.cameras.main.scrollX -= (pointer.x - pointer.prevPosition.x) / this.cameras.main.zoom;
+                this.cameras.main.scrollY -= (pointer.y - pointer.prevPosition.y) / this.cameras.main.zoom;
+            });
+            this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
+                const cam = this.cameras.main;
+                const newZoom = cam.zoom - (deltaY * 0.01); 
+                cam.setZoom(Phaser.Math.Clamp(newZoom, 1, 4));
+            });
 
-        // Make it interactive and draggable
-        building_img.setInteractive();
-        this.input.setDraggable(building_img);
-    });
+            gameinfo.info.village_layout.forEach((buildingData) => {
+                const pixelX = (buildingData.x_coordinate * tileSize) + (tileSize / 2);
+                const pixelY = (buildingData.y_coordinate * tileSize) + (tileSize / 2);
+                const building = gameinfo.info.buildings_master_table[(buildingData.type_id)-1];
+                const building_img = this.add.image(pixelX, pixelY, 'buildings', `${building.building_name}${building.building_level}`);
+                building_img.setOrigin(0);
+                const sz = building.tile_count;
+                building_img.setSize(tileSize*sz,tileSize*sz);
+                console.log(building_img.height);
+                building_img.setData("global_id", buildingData.global_id);
+                building_img.setData("type_id", buildingData.type_id);
+                building_img.setDisplaySize(tileSize*sz,tileSize*sz); 
+                building_img.setInteractive();
+                this.input.setDraggable(building_img);
+                this.buildingGroup.add(building_img);
+            });
 
-    // 4. The Global Drag Event (with Grid Snapping)
-    // This listens for ANY draggable object being moved
-    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-        
-        // The Snapping Math!
-        // 1. Divide the mouse pixel by 32
-        // 2. Floor it to chop off the decimals (finding the raw column/row)
-        // 3. Multiply back by 32 to get the pixel coordinate of the top-left of the tile
-        // 4. Add 16 (tileSize / 2) to shift the building to the dead-center of the tile
-        
-        const snappedX = Math.floor(dragX / tileSize) * tileSize + (tileSize / 2);
-        const snappedY = Math.floor(dragY / tileSize) * tileSize + (tileSize / 2);
+            this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+                const snappedX = Math.floor(dragX / tileSize) * tileSize;
+                const snappedY = Math.floor(dragY / tileSize) * tileSize;
+                gameObject.x = snappedX;
+                gameObject.y = snappedY;
+                hitbox.x = snappedX;
+                hitbox.y = snappedY;
+                let isOverlapping = false;
+                const objBounds = gameObject.getBounds();
+                const allBuildings = this.buildingGroup.getChildren(); 
 
-        // Apply the snapped coordinates to the building
-        gameObject.x = snappedX;
-        gameObject.y = snappedY;
-    });
-        // 4. Tell Phaser what to do when you drag an object
-        this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
-        });        
+                for (const otherBuilding of allBuildings) {
+                    if (otherBuilding === gameObject) continue; 
+                    if (Phaser.Geom.Intersects.RectangleToRectangle(objBounds, otherBuilding.getBounds())) {
+                        isOverlapping = true;
+                        break; 
+                    }
+                }
+                if (isOverlapping) {
+                    hitbox.fillColor = 0xFF0000;
+                    gameObject.setData('isValid', false);
+                } else {
+                    hitbox.fillColor = 0x00FF00; 
+                    gameObject.setData('isValid', true);
+                }
+
+            });      
         }    
     }
       
     onMount(() => {
         const config = {
             type: Phaser.AUTO,
-            width: 1280, 
-            height: 1280, 
+            backgroundColor: "#71e026",
+            width: 1408, 
+            height: 1408,
             title: "Politique",
             parent: gameContainer,
             scale: {
                 mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
+                autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
             scene: [ResidenceScene]
@@ -92,4 +135,25 @@
     });
 </script>
 
-<div bind:this={gameContainer} style="width: 100vw; height: 100vh; overflow: hidden; background-color: #FFF;"></div>
+<style>
+    :global(html, body) {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    :global(canvas) {
+        display: block; 
+    }
+</style>
+
+<div bind:this={gameContainer} style="
+    position: absolute;
+    top:0;
+    left:0;
+    box-sizing: border-box; 
+    height: 100%; 
+    width: 100%; 
+    background-color: #FFF;">
+</div>

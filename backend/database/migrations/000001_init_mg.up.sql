@@ -90,8 +90,8 @@ CREATE TABLE IF NOT EXISTS village_layout(
     x_coordinate SMALLINT NOT NULL ,
     y_coordinate SMALLINT NOT NULL ,
     CONSTRAINT unique_location UNIQUE(user_id, x_coordinate, y_coordinate) ,
-    CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 36 ) ,
-    CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 36 ) 
+    CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 40 ) ,
+    CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 40 ) 
 );
 
 CREATE TABLE IF NOT EXISTS tiers(
