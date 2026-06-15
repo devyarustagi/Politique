@@ -3,6 +3,7 @@
     import ErrorBox from '$lib/components/auth/error-box.svelte';
     import AuthLink from '$lib/components/auth/auth-link.svelte';
     import { api } from '$lib/api.js'
+	import { goto } from '$app/navigation';
     
     let username = $state("");
     let password = $state("");
@@ -35,10 +36,12 @@
             
             if (response.ok) {
                 console.log("Registration successful");
+                goto('/residence')
             } else if (response.status === 409 ){
                 errorMsg = "Username already taken, please choose another one.";
             }
         } catch (error) {
+            errorMsg = "Registration failed due to internal server error.Please retry later."
             console.error("Network error:", error);
         }
     }

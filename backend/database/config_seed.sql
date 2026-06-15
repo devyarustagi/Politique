@@ -60,16 +60,16 @@ VALUES
 (4, 'storage', 'Residence', 4,  2000, 4, 25000,  'The heart of your village. Upgrade to unlock new buildings and troops.', 3),
 
 -- ── MERCENARY CAMP ────────────────────────────────────────────
-(5, 'storage', 'Mercenary Camp', 1,  100, 4, 200,      'Houses your mercenaries. Higher levels increase total army housing space.', 1),
-(6, 'storage', 'Mercenary Camp', 2,  150, 4, 2000,   'Houses your mercenaries. Higher levels increase total army housing space.', 2),
-(7, 'storage', 'Mercenary Camp', 3,  200, 4, 10000,   'Houses your mercenaries. Higher levels increase total army housing space.', 3),
-(8, 'storage', 'Mercenary Camp', 4,  250, 4, 100000,  'Houses your mercenaries. Higher levels increase total army housing space.', 4),
+(5, 'storage', 'Mercenary-Camp', 1,  100, 4, 200,      'Houses your mercenaries. Higher levels increase total army housing space.', 1),
+(6, 'storage', 'Mercenary-Camp', 2,  150, 4, 2000,   'Houses your mercenaries. Higher levels increase total army housing space.', 2),
+(7, 'storage', 'Mercenary-Camp', 3,  200, 4, 10000,   'Houses your mercenaries. Higher levels increase total army housing space.', 3),
+(8, 'storage', 'Mercenary-Camp', 4,  250, 4, 100000,  'Houses your mercenaries. Higher levels increase total army housing space.', 4),
 
 -- ── OIL STORAGE ───────────────────────────────────────────────
-(9, 'storage', 'Oil Storage', 1,  150,  3, 300,      'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 1),
-(10, 'storage', 'Oil Storage', 2,  450,  3, 750,   'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 2),
-(11, 'storage', 'Oil Storage', 3,  1000,  3, 6000,   'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 3),
-(12, 'storage', 'Oil Storage', 4,  1500, 3, 25000,  'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 4),
+(9, 'storage', 'Oil-Storage', 1,  150,  3, 300,      'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 1),
+(10, 'storage', 'Oil-Storage', 2,  450,  3, 750,   'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 2),
+(11, 'storage', 'Oil-Storage', 3,  1000,  3, 6000,   'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 3),
+(12, 'storage', 'Oil-Storage', 4,  1500, 3, 25000,  'Stores oil collected from your Oil Collectors. A prime target for Thieves.', 4),
 
 -- ── CANNON ────────────────────────────────────────────────────
 (13, 'defense', 'Cannon', 1,  360, 3, 250,      'Single-target ground defense. Fires at whatever gets closest.', 1),
@@ -78,25 +78,25 @@ VALUES
 (16, 'defense', 'Cannon', 4,  600, 3, 50000,  'Single-target ground defense. Fires at whatever gets closest.', 4),
 
 -- ── ARCHER TOWER ──────────────────────────────────────────────
-(17, 'defense', 'Archer Tower', 1,  420, 3, 1000,   'Ranged defense that targets both ground and air troops.', 2),
-(18, 'defense', 'Archer Tower', 2,  460, 3, 5000,   'Ranged defense that targets both ground and air troops.', 3),
-(19, 'defense', 'Archer Tower', 3,  500, 3, 20000,  'Ranged defense that targets both ground and air troops.', 4),
+(17, 'defense', 'Archer-Tower', 1,  420, 3, 1000,   'Ranged defense that targets both ground and air troops.', 2),
+(18, 'defense', 'Archer-Tower', 2,  460, 3, 5000,   'Ranged defense that targets both ground and air troops.', 3),
+(19, 'defense', 'Archer-Tower', 3,  500, 3, 20000,  'Ranged defense that targets both ground and air troops.', 4),
 
 -- ── MORTAR ────────────────────────────────────────────────────
 (20, 'defense', 'Mortar', 1,  400, 3, 5000,      'Lobs shells in an arc dealing splash damage. Cannot target nearby troops.', 3),
 (21, 'defense', 'Mortar', 2,  450, 3, 25000,   'Lobs shells in an arc dealing splash damage. Cannot target nearby troops.', 4),
 
 -- ── OIL COLLECTOR ─────────────────────────────────────────────
-(22, 'collector', 'Oil Collector', 1,  150, 3, 150,      'Pumps oil over time and stores it until collected.', 1),
-(23, 'collector', 'Oil Collector', 2,  400, 3, 700,   'Pumps oil over time and stores it until collected.', 2),
-(24, 'collector', 'Oil Collector', 3,  550, 3, 3000,   'Pumps oil over time and stores it until collected.', 3),
-(25, 'collector', 'Oil Collector', 4,  660, 3, 14000,  'Pumps oil over time and stores it until collected.', 4),
+(22, 'collector', 'Oil-Drill', 1,  150, 3, 150,      'Pumps oil over time and stores it until collected.', 1),
+(23, 'collector', 'Oil-Drill', 2,  400, 3, 700,   'Pumps oil over time and stores it until collected.', 2),
+(24, 'collector', 'Oil-Drill', 3,  550, 3, 3000,   'Pumps oil over time and stores it until collected.', 3),
+(25, 'collector', 'Oil-Drill', 4,  660, 3, 14000,  'Pumps oil over time and stores it until collected.', 4),
 
 -- ── GEM COLLECTOR (builder base style, no gem storage) ────────
-(26, 'collector', 'Gem Collector', 1,  150, 3, 250,      'Slowly produces gems over time. No storage building required.', 1),
-(27, 'collector', 'Gem Collector', 2,  400, 3, 1400,    'Slowly produces gems over time. No storage building required.', 2),
-(28, 'collector', 'Gem Collector', 3,  550, 3, 5000,   'Slowly produces gems over time. No storage building required.', 3),
-(29, 'collector', 'Gem Collector', 4,  660, 3, 18000,  'Slowly produces gems over time. No storage building required.', 4)
+(26, 'collector', 'Gem-Mine', 1,  150, 3, 250,      'Slowly produces gems over time. No storage building required.', 1),
+(27, 'collector', 'Gem-Mine', 2,  400, 3, 1400,    'Slowly produces gems over time. No storage building required.', 2),
+(28, 'collector', 'Gem-Mine', 3,  550, 3, 5000,   'Slowly produces gems over time. No storage building required.', 3),
+(29, 'collector', 'Gem-Mine', 4,  660, 3, 18000,  'Slowly produces gems over time. No storage building required.', 4)
 
 ON CONFLICT ON CONSTRAINT unique_building DO UPDATE SET
     hp = EXCLUDED.hp,

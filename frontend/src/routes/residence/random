@@ -1,3 +1,4 @@
+`
 <script>
     import { onMount } from 'svelte';
     import Phaser from 'phaser';
@@ -52,3 +53,4 @@
         display: block;
     }
 </style>
+`

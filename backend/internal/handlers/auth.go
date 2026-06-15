@@ -53,7 +53,7 @@ func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Reque
 	cookie2 := &http.Cookie{
         Name: "jwt-refresh-token",
         Value: refreshToken,
-		Path: "/",
+		Path: "/api/auth/refresh",
         Expires:  time.Now().Add(time.Hour * 24 * 7), 
         HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,

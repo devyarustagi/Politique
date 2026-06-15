@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS residence_properties(
     residence_level SMALLINT NOT NULL CHECK( residence_level > 0 ) DEFAULT 1 ,
     gems INT NOT NULL CHECK( gems >= 0 ) DEFAULT 250 ,
     oil INT NOT NULL CHECK( oil >= 0 ) DEFAULT 1000 ,
-    oil_last_collected TIMESTAMPTZ ,  --default value will be null because initially user won't have unlocked oil collector
-    gems_last_collected TIMESTAMPTZ ,
+    oil_last_collected TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    gems_last_collected TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     in_battle  BOOLEAN NOT NULL DEFAULT FALSE,
     under_attack BOOLEAN NOT NULL DEFAULT FALSE,
     last_attacked TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP

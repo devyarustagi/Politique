@@ -3,6 +3,7 @@
     import ErrorBox from '$lib/components/auth/error-box.svelte';
     import AuthLink from '$lib/components/auth/auth-link.svelte';
     import { api } from '$lib/api.js'
+	import { goto } from '$app/navigation';
     
     let username: string = $state("");
     let password: string = $state("");
@@ -31,6 +32,7 @@
 
             if (response.ok) {
                 console.log("Login successful");
+                    goto("/residence")
             } else {
                 if (response.status === 401) {
                     errorMessage = "Username or password do not match.";
