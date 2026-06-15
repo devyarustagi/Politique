@@ -1,2 +1,2 @@
 # Politique
-Current Status: Working on writing functions for various backend services and setting up gameplay related route handlers .
+Current Status: Working on frontend. Backend some bits left which I will complete alongside the frontend .
