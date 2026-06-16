@@ -4,7 +4,7 @@ import { goto } from "$app/navigation";
 export async function refreshJWT(){
     try{
         const response = await fetch(api.refresh(),{
-            method: "GET",
+            method: "POST",
             credentials: "include"
         });
         if (response.ok) {

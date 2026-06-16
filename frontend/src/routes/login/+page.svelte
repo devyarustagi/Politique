@@ -32,7 +32,7 @@
 
             if (response.ok) {
                 console.log("Login successful");
-                    goto("/residence")
+                    goto("/play")
             } else {
                 if (response.status === 401) {
                     errorMessage = "Username or password do not match.";

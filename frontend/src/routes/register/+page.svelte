@@ -36,7 +36,7 @@
             
             if (response.ok) {
                 console.log("Registration successful");
-                goto('/residence')
+                goto('/play')
             } else if (response.status === 409 ){
                 errorMsg = "Username already taken, please choose another one.";
             }
