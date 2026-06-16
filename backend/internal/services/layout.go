@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/devyarustagi/Politique/internal/config"
 	"github.com/devyarustagi/Politique/internal/db"
@@ -54,42 +55,43 @@ func MoveBuiliding(ctx context.Context, q *db.Queries, building *dtors.MoveBuild
 	})
 }
 
-func NewBuilding(ctx context.Context, p *pgxpool.Pool, building *dtors.NewBuildingInfo, uid uuid.UUID) error {
+func NewBuilding(ctx context.Context, p *pgxpool.Pool, building *dtors.NewBuildingInfo, uid uuid.UUID) (int64, error) {
 	q := db.New(p)
 	if !(building.Resource == "oil" || building.Resource == "gems") {
-		return ErrInvalidResource
+		return 0, ErrInvalidResource
 	}
 	if int(building.TypeID) > len(config.BMT) || building.TypeID < 1 {
-		return ErrNoBuilding
+		log.Printf("%v", building.TypeID);
+		return 0, ErrNoBuilding
 	}
 	if !ValidateCoordBounds(int(building.XCoordinate), int(building.YCoordinate), int(config.BMT[building.TypeID-1].TileCount)) {
-		return ErrInvalidPos
+		return 0, ErrInvalidPos
 	}
 	var residence db.GetUserResidenceLvlandResourcesRow
 	residence, err := q.GetUserResidenceLvlandResources(ctx, uid)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	var buildingInfo db.BuildingsMasterTable
 	buildingInfo = config.BMT[building.TypeID-1]
 	if buildingInfo.UnlockLevel > residence.ResidenceLevel {
-		return ErrBuildingLocked
+		return 0, ErrBuildingLocked
 	}
 	if buildingInfo.BuildingLevel != 1 {
-		return ErrWrongLevel
+		return 0, ErrWrongLevel
 	}
 	if building.Resource == "gems" {
 		if buildingInfo.UpgradeCost/100 > residence.Gems {
-			return ErrInsufficientFunds
+			return 0, ErrInsufficientFunds
 		}
 	} else {
 		if buildingInfo.UpgradeCost > residence.Oil {
-			return ErrInsufficientFunds
+			return 0, ErrInsufficientFunds
 		}
 	}	
 	tx, err := p.Begin(ctx)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback(ctx)
 	qtx := q.WithTx(tx)
@@ -99,36 +101,36 @@ func NewBuilding(ctx context.Context, p *pgxpool.Pool, building *dtors.NewBuildi
 		GlobalID: 0,
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if !CheckCollisions(buildingInfo.TileCount, building.XCoordinate, building.YCoordinate, occupied) {
-		return ErrInvalidPos
+		return 0, ErrInvalidPos
 	}
 	if building.Resource == "oil" {
 		if err := qtx.SpendOil(ctx, db.SpendOilParams{
 			UserID: uid,
 			Oil:    buildingInfo.UpgradeCost,
 		}); err != nil {
-			return err
+			return 0, err
 		}
 	} else {
 		if err := qtx.SpendGems(ctx, db.SpendGemsParams{
 			UserID: uid,
 			Gems:   buildingInfo.UpgradeCost / 100,
 		}); err != nil {
-			return err
+			return 0, err
 		}
 	}
-	err = qtx.AddBuilding(ctx, db.AddBuildingParams{
+	globalID, err := qtx.AddBuilding(ctx, db.AddBuildingParams{
 		UserID:      uid,
 		TypeID:      building.TypeID,
 		XCoordinate: building.XCoordinate,
 		YCoordinate: building.YCoordinate,
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return tx.Commit(ctx)
+	return globalID, tx.Commit(ctx)
 }
 
 func UpgradeBuilding(ctx context.Context, p *pgxpool.Pool, upgradeInfo *dtors.UpgradeBuildingInfo, uid uuid.UUID) error {

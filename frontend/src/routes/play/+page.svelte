@@ -2,25 +2,22 @@
     import { onMount, onDestroy } from 'svelte';
     import Phaser from 'phaser';
     import { ResidenceScene } from '$lib/scenes/residence';
-    import { gameinfo } from '$lib/gameState.svelte';
-    
+    import { gameinfo, resources } from '$lib/gameState.svelte';
+	import { ShopScene } from '$lib/scenes/shop';
     let gameContainer;
     let game;
-    //export these later if required
-    let oil = $state(0);
-    let gems = $state(0);
-    let oilCap = $state(0);
+
     onMount(() => {
         $inspect(gameinfo);
-        oil = gameinfo.info.residence.oil;
-        gems = gameinfo.info.residence.gems;
+        resources.oil = gameinfo.info.residence.oil;
+        resources.gems = gameinfo.info.residence.gems;
         gameinfo.info.village_layout.forEach((buildingData) => {
             const building = gameinfo.info.buildings_master_table[buildingData.type_id - 1];
             if (building.building_type === "storage" && building.building_name !== "Mercenary-Camp") {
-                oilCap += gameinfo.info.storages.find(x => x.building_id === building.building_id).storage_capacity;
+                resources.oilCap += gameinfo.info.storages.find(x => x.building_id === building.building_id).storage_capacity;
             }
         });
-        console.log(oilCap);
+        console.log(resources.oilCap);
         const config = {
             type: Phaser.AUTO,
             backgroundColor: "#71e026",
@@ -33,7 +30,7 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene]
+            scene: [ResidenceScene, ShopScene]
             }
             game = new Phaser.Game(config);
         });
@@ -42,6 +39,24 @@
                 game.destroy(true);
             }
         });
+
+    function openShop() {
+        if (!game) return;
+        const unlockedItems = []
+        const residencelvl = gameinfo.info.residence.residence_level;
+        gameinfo.info.buildings_master_table.forEach((buildingData) => {
+            if(buildingData.unlock_level === residencelvl && buildingData.building_name !== 'Residence'){
+                unlockedItems.push({
+                    id: buildingData.building_id, 
+                    name: buildingData.building_name,
+                    cost: buildingData.upgrade_cost,
+                    textureKey: `${buildingData.building_name}1`
+                })
+            }
+        })
+        game.scene.pause('ResidenceScene');
+        game.scene.run('ShopScene', { items: unlockedItems });
+    }
 </script>
 
 <div class="desk-background">
@@ -70,14 +85,14 @@
             <div class="resource-panel">
                 <div class="resource-pill dark-elixir">
                     <span class="resource-icon">💧</span>
-                    <span class="resource-value">{oil}/{oilCap}</span>
+                    <span class="resource-value">{resources.oil}/{resources.oilCap}</span>
                 </div>
                 <div class="resource-pill gems">
                     <span class="resource-icon">💎</span>
-                    <span class="resource-value">{gems}</span>
+                    <span class="resource-value">{resources.gems}</span>
                 </div>
             </div>
-            <button class="psp-btn action-btn green" onclick={() => console.log('Shop!')}>🛒</button>
+            <button class="psp-btn action-btn green" onclick={openShop}>🛒</button>
             <button class="psp-btn action-btn red">⚔️</button>
         </div>
 

@@ -17,3 +17,7 @@ type UpgradeBuildingInfo struct {
 	GlobalID int64  `json:"global_id"`
 	Resource string `json:"resource"`
 }
+
+type GlobalID struct {
+	GlobalID int64 `json:"global_id"`
+}

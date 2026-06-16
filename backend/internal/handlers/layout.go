@@ -45,7 +45,7 @@ func (h *Handler) PostBuilding(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to read request body", http.StatusBadRequest)
 		return
 	}
-	err := services.NewBuilding(r.Context(), h.Pool, &req, uid)
+	globalID, err := services.NewBuilding(r.Context(), h.Pool, &req, uid)
 	if err != nil {
 		if errors.Is(err, services.ErrBuildingLocked) ||
 			errors.Is(err, services.ErrInsufficientFunds) ||
@@ -61,7 +61,11 @@ func (h *Handler) PostBuilding(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	id := dtors.GlobalID{
+		GlobalID: globalID,
+	}
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(id);
 
 }
 

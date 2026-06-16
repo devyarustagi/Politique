@@ -14,9 +14,10 @@ WHERE global_id = $3;
 -- name: GetUserResidenceLvlandResources :one
 SELECT residence_level, oil, gems FROM residence_properties WHERE user_id = $1;
 
--- name: AddBuilding :exec
+-- name: AddBuilding :one
 INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
-VALUES ($1, $2, $3, $4);
+VALUES ($1, $2, $3, $4)
+RETURNING global_id;
 
 -- name: UpgradeBuilding :exec
 UPDATE village_layout

@@ -1,0 +1,37 @@
+import { api } from "./apiRoutes";
+import { refreshJWT } from "./refreshJWT";
+
+export async function addBuilding(newBuildingData){
+    try {
+        const response = await fetch(api.newBuilding(), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify(newBuildingData)
+        })
+        if (response.ok) {
+            return await response.json();
+        }
+        if (response.status == 401){
+            let ok = await refreshJWT();
+            if (!ok) {
+                return false;
+            }
+            ok = await newBuilding(newBuildingData);
+            return ok;
+        }
+        throw new Error("server error");
+    }
+    catch (error) {
+        if (error instanceof TypeError) {
+            alert("Request could not be processed. Please check your network connection and try again.");
+            return false;
+        } else {
+            console.error("Unexpected error:", error.message);
+            alert("Something went wrong. Please try again.");
+            return false;
+        }
+    }
+}

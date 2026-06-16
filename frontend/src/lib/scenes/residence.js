@@ -18,11 +18,11 @@ export class ResidenceScene extends Phaser.Scene {
         }
 
         create() {
-            const map = this.make.tilemap({ key: 'my_map' });
-            const tileset = map.addTilesetImage('grass', 'grass_img');
-            const layer = map.createLayer('Tile Layer 1', tileset, 0, 0);
-            const tileSize = 32;
-            this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+            this.map = this.make.tilemap({ key: 'my_map' });
+            const tileset = this.map.addTilesetImage('grass', 'grass_img');
+            const layer = this.map.createLayer('Tile Layer 1', tileset, 0, 0);
+            this.tileSize = 32;
+            this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
             let isDraggingBuilding = false;
             this.buildingGroup = this.add.group({
                 classType: Phaser.GameObjects.Image,
@@ -46,7 +46,7 @@ export class ResidenceScene extends Phaser.Scene {
                     gameObject.x = gameObject.getData('startX');
                     gameObject.y = gameObject.getData('startY');
                 }
-                const promise = moveBuilding(gameObject.getData("global_id"), Math.floor(gameObject.x / tileSize), Math.floor(gameObject.y / tileSize));
+                const promise = moveBuilding(gameObject.getData("global_id"), Math.floor(gameObject.x / this.tileSize), Math.floor(gameObject.y / this.tileSize));
                 promise.then(ok => 
                     {
                         if (!ok) 
@@ -71,25 +71,12 @@ export class ResidenceScene extends Phaser.Scene {
             });
 
             gameinfo.info.village_layout.forEach((buildingData) => {
-                const pixelX = buildingData.x_coordinate * tileSize;
-                const pixelY = buildingData.y_coordinate * tileSize;
-                const building = gameinfo.info.buildings_master_table[(buildingData.type_id)-1];
-                const building_img = this.add.image(pixelX, pixelY, 'buildings', `${building.building_name}${building.building_level}`);
-                building_img.setOrigin(0);
-                const sz = building.tile_count;
-                building_img.setSize(tileSize*sz,tileSize*sz);
-                console.log(building_img.height);
-                building_img.setData("global_id", buildingData.global_id);
-                building_img.setData("type_id", buildingData.type_id);
-                building_img.setDisplaySize(tileSize*sz,tileSize*sz); 
-                building_img.setInteractive();
-                this.input.setDraggable(building_img);
-                this.buildingGroup.add(building_img);
+                this.addNewBuilding(buildingData);
             });
 
             this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-                const snappedX = Math.floor(dragX / tileSize) * tileSize;
-                const snappedY = Math.floor(dragY / tileSize) * tileSize;
+                const snappedX = Math.floor(dragX / this.tileSize) * this.tileSize;
+                const snappedY = Math.floor(dragY / this.tileSize) * this.tileSize;
                 gameObject.x = snappedX;
                 gameObject.y = snappedY;
                 hitbox.x = snappedX;
@@ -98,10 +85,10 @@ export class ResidenceScene extends Phaser.Scene {
                 const objBounds = gameObject.getBounds();
                 const allBuildings = this.buildingGroup.getChildren(); 
                 Phaser.Geom.Rectangle.Inflate(objBounds, -1, -1);
-                if (hitbox.x < 0 || hitbox.x + hitbox.displayWidth > map.widthInPixels){
+                if (hitbox.x < 0 || hitbox.x + hitbox.displayWidth > this.map.widthInPixels){
                     isOverlapping = true;
                 }
-                else if ( hitbox.y < 0 || hitbox.y + hitbox.displayHeight > map.heightInPixels){
+                else if ( hitbox.y < 0 || hitbox.y + hitbox.displayHeight > this.map.heightInPixels){
                     isOverlapping = true;
                 }
                 else {
@@ -122,5 +109,61 @@ export class ResidenceScene extends Phaser.Scene {
                 }
 
             });      
-        }    
+        }
+        findEmptySpot(id) {
+            // Calculate max grid coordinates
+            const tileCount = gameinfo.info.buildings_master_table[id-1].tile_count;
+            const maxGridX = Math.floor(this.map.widthInPixels / this.tileSize) - tileCount;
+            const maxGridY = Math.floor(this.map.heightInPixels / this.tileSize) - tileCount;
+
+            // Scan the grid row by row, column by column
+            for (let y = 0; y <= maxGridY; y++) {
+                for (let x = 0; x <= maxGridX; x++) {
+                    
+                    // Create a virtual hitbox for this spot
+                    const testRect = new Phaser.Geom.Rectangle(
+                        x * this.tileSize,
+                        y * this.tileSize,
+                        tileCount * this.tileSize,
+                        tileCount * this.tileSize
+                    );
+
+                    // Shrink slightly to avoid false edge collisions (just like your drag logic)
+                    Phaser.Geom.Rectangle.Inflate(testRect, -1, -1);
+
+                    let isOverlapping = false;
+                    const allBuildings = this.buildingGroup.getChildren(); 
+                    
+                    // Check against all existing buildings
+                    for (const building of allBuildings) {
+                        if (Phaser.Geom.Intersects.RectangleToRectangle(testRect, building.getBounds())) {
+                            isOverlapping = true;
+                            break; 
+                        }
+                    }
+
+                    // If we found a spot with no overlaps, return the grid coordinates!
+                    if (!isOverlapping) {
+                            return { x_coordinate: x, y_coordinate: y };
+                    }
+                }
+            }
+            return null;    
+        }
+        addNewBuilding(buildingData) {
+            const pixelX = buildingData.x_coordinate * this.tileSize;
+            const pixelY = buildingData.y_coordinate * this.tileSize;
+            const building = gameinfo.info.buildings_master_table[(buildingData.type_id)-1];
+            const building_img = this.add.image(pixelX, pixelY, 'buildings', `${building.building_name}${building.building_level}`);
+            building_img.setOrigin(0);
+            const sz = building.tile_count;
+            building_img.setSize(this.tileSize*sz,this.tileSize*sz);
+            console.log(building_img.height);
+            building_img.setData("global_id", buildingData.global_id);
+            building_img.setData("type_id", buildingData.type_id);
+            building_img.setDisplaySize(this.tileSize*sz,this.tileSize*sz); 
+            building_img.setInteractive();
+            this.input.setDraggable(building_img);
+            this.buildingGroup.add(building_img);
+        }
     }

@@ -11,9 +11,10 @@ import (
 	"github.com/google/uuid"
 )
 
-const addBuilding = `-- name: AddBuilding :exec
+const addBuilding = `-- name: AddBuilding :one
 INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
 VALUES ($1, $2, $3, $4)
+RETURNING global_id
 `
 
 type AddBuildingParams struct {
@@ -23,14 +24,16 @@ type AddBuildingParams struct {
 	YCoordinate int16     `json:"y_coordinate"`
 }
 
-func (q *Queries) AddBuilding(ctx context.Context, arg AddBuildingParams) error {
-	_, err := q.db.Exec(ctx, addBuilding,
+func (q *Queries) AddBuilding(ctx context.Context, arg AddBuildingParams) (int64, error) {
+	row := q.db.QueryRow(ctx, addBuilding,
 		arg.UserID,
 		arg.TypeID,
 		arg.XCoordinate,
 		arg.YCoordinate,
 	)
-	return err
+	var global_id int64
+	err := row.Scan(&global_id)
+	return global_id, err
 }
 
 const getBuildingType = `-- name: GetBuildingType :one
