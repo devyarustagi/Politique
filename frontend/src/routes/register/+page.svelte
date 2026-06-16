@@ -2,7 +2,7 @@
     import BgImage from '$lib/assets/Login.webp'; 
     import ErrorBox from '$lib/components/auth/error-box.svelte';
     import AuthLink from '$lib/components/auth/auth-link.svelte';
-    import { api } from '$lib/api.js'
+    import { api } from '$lib/api/apiRoutes.js'
 	import { goto } from '$app/navigation';
     
     let username = $state("");

@@ -155,7 +155,7 @@ func (h *Handler) Login( w http.ResponseWriter, r *http.Request){
 func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request){
 	cookie, err:= r.Cookie("jwt-refresh-token")
 	if err != nil{
-		http.Error(w, "refresh token missing", http.StatusBadRequest)
+		http.Error(w, "refresh token missing", http.StatusUnauthorized)
 		return
 	}
 	refreshToken, err:= base64.URLEncoding.DecodeString(cookie.Value)

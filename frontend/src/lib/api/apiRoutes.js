@@ -6,4 +6,6 @@ export const api = {
     login: () => `${BASE}/api/auth/login`,
     register: () => `${BASE}/api/auth/register`,
     load: () => `${BASE}/api/user/load`,
+    move: () => `${BASE}/api/user/layout/move`,
+    refresh: () => `${BASE}/api/auth/refresh`
 }

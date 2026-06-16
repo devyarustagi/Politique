@@ -1,9 +1,9 @@
-import { api } from "$lib/api";
+import { api } from "$lib/api/apiRoutes.js";
 import { browser } from "$app/environment";
 import { gameinfo } from "$lib/gameState.svelte"; 
 export const ssr = false;
 export async function load({ fetch }) {
-    if (browser && !gameinfo.isLoaded) {
+    if (!gameinfo.isLoaded) {
         try {
             const response = await fetch(api.load(), {
                 method: "GET",
