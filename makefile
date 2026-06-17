@@ -18,5 +18,6 @@ db-down:
 
 seed:
 	docker exec -i pg_database psql -U "$(POSTGRES_USER)" -d "$(POSTGRES_DB)" < ./backend/database/config_seed.sql
+	docker exec -i pg_database psql -U "$(POSTGRES_USER)" -d "$(POSTGRES_DB)" < ./backend/database/dummy_users_seed.sql
 
 init:up db-up seed
