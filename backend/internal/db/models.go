@@ -124,6 +124,7 @@ type ResidenceProperty struct {
 	InBattle          bool               `json:"in_battle"`
 	UnderAttack       bool               `json:"under_attack"`
 	LastAttacked      pgtype.Timestamptz `json:"last_attacked"`
+	AttackingOn       uuid.UUID          `json:"attacking_on"`
 }
 
 type Storage struct {

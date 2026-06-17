@@ -25,5 +25,15 @@ RETURNING user_id;
 
 -- name: SetInBattle :exec
 UPDATE residence_properties
-SET in_battle = true 
+SET in_battle = true, attacking_on = $2
 WHERE user_id = $1;
+
+-- name: GetDefenderNameKarma :one
+SELECT username, karma FROM
+creds JOIN user_stats 
+ON creds.user_id = user_stats.user_id 
+WHERE creds.user_id = $1;
+
+-- name: GetDefenderVillageLayout :many
+SELECT type_id, x_coordinate, y_coordinate FROM
+village_layout WHERE user_id = $1;

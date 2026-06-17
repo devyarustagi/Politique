@@ -11,6 +11,56 @@ import (
 	"github.com/google/uuid"
 )
 
+const getDefenderNameKarma = `-- name: GetDefenderNameKarma :one
+SELECT username, karma FROM
+creds JOIN user_stats 
+ON creds.user_id = user_stats.user_id 
+WHERE creds.user_id = $1
+`
+
+type GetDefenderNameKarmaRow struct {
+	Username string `json:"username"`
+	Karma    int32  `json:"karma"`
+}
+
+func (q *Queries) GetDefenderNameKarma(ctx context.Context, userID uuid.UUID) (GetDefenderNameKarmaRow, error) {
+	row := q.db.QueryRow(ctx, getDefenderNameKarma, userID)
+	var i GetDefenderNameKarmaRow
+	err := row.Scan(&i.Username, &i.Karma)
+	return i, err
+}
+
+const getDefenderVillageLayout = `-- name: GetDefenderVillageLayout :many
+SELECT type_id, x_coordinate, y_coordinate FROM
+village_layout WHERE user_id = $1
+`
+
+type GetDefenderVillageLayoutRow struct {
+	TypeID      int16 `json:"type_id"`
+	XCoordinate int16 `json:"x_coordinate"`
+	YCoordinate int16 `json:"y_coordinate"`
+}
+
+func (q *Queries) GetDefenderVillageLayout(ctx context.Context, userID uuid.UUID) ([]GetDefenderVillageLayoutRow, error) {
+	rows, err := q.db.Query(ctx, getDefenderVillageLayout, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDefenderVillageLayoutRow
+	for rows.Next() {
+		var i GetDefenderVillageLayoutRow
+		if err := rows.Scan(&i.TypeID, &i.XCoordinate, &i.YCoordinate); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSuitableOpponent = `-- name: GetSuitableOpponent :one
 UPDATE residence_properties
 SET under_attack = true
@@ -66,11 +116,16 @@ func (q *Queries) GetUserInfoForMatchmaking(ctx context.Context, userID uuid.UUI
 
 const setInBattle = `-- name: SetInBattle :exec
 UPDATE residence_properties
-SET in_battle = true 
+SET in_battle = true, attacking_on = $2
 WHERE user_id = $1
 `
 
-func (q *Queries) SetInBattle(ctx context.Context, userID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, setInBattle, userID)
+type SetInBattleParams struct {
+	UserID      uuid.UUID `json:"user_id"`
+	AttackingOn uuid.UUID `json:"attacking_on"`
+}
+
+func (q *Queries) SetInBattle(ctx context.Context, arg SetInBattleParams) error {
+	_, err := q.db.Exec(ctx, setInBattle, arg.UserID, arg.AttackingOn)
 	return err
 }

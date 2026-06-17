@@ -9,8 +9,8 @@ new_stats AS (
     SELECT user_id FROM new_user
 ),
 new_residence AS (
-    INSERT INTO residence_properties (user_id, residence_level, gems, oil)
-    SELECT user_id, 1, 50, 1000 FROM new_user
+    INSERT INTO residence_properties (user_id, attacking_on)
+    SELECT user_id, user_id FROM new_user
 )
 INSERT INTO village_layout (user_id, type_id, x_coordinate, y_coordinate)
 SELECT user_id, v.type_id, v.x, v.y
