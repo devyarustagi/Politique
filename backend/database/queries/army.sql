@@ -8,7 +8,7 @@ ORDER BY mercenary_id ASC;
 WITH UserMercCamps AS (
     SELECT building_id FROM 
     village_layout JOIN buildings_master_table ON village_layout.type_id = buildings_master_table.building_id
-    WHERE building_name = 'Mercenary Camp' AND user_id = $1
+    WHERE building_name = 'Mercenary-Camp' AND user_id = $1
 )
 SELECT SUM(storage_capacity) ::SMALLINT AS capacity FROM
 storages s JOIN UserMercCamps u ON s.building_id = u.building_id ;

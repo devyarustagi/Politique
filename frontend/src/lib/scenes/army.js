@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { resources, gameinfo, userArmy } from "$lib/gameState.svelte";
+import { trainArmy } from "$lib/api/trainArmy";
 
 export class ChooseArmyScene extends Phaser.Scene {
     constructor() {
@@ -195,12 +196,18 @@ export class ChooseArmyScene extends Phaser.Scene {
         battleBg.setStrokeStyle(6, 0x1a0f0a);
         this.add.text(centerX + 200, yPos, "BATTLE!", { fontSize: '32px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
 
-        battleBg.on('pointerdown', () => {
+        battleBg.on('pointerdown', async () => {
             if (resources.armySz === 0) {
                 alert("You need at least one troop to battle!");
                 return;
             }
-            
+            const ok = await trainArmy();
+            if(!ok){
+                return;
+            }
+            else{
+                //call battle handler
+            }
         });
 
         cancelBg.on('pointerover', () => cancelBg.setFillStyle(0xe74c3c));

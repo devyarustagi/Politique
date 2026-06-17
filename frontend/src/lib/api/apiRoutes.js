@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public'
+import { trainArmy } from './trainArmy'
 
 const BASE = env.PUBLIC_API_URL
 
@@ -8,5 +9,6 @@ export const api = {
     load: () => `${BASE}/api/user/load`,
     move: () => `${BASE}/api/user/layout/move`,
     refresh: () => `${BASE}/api/auth/refresh`,
-    newBuilding: () => `${BASE}/api/user/layout`
+    newBuilding: () => `${BASE}/api/user/layout`,
+    army: () => `${BASE}/api/user/army`
 }
