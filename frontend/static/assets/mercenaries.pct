@@ -1,0 +1,16 @@
+PCT:1.0
+P:mercenaries_0.png,RGBA8888,1653,130,5
+B:2,2,4,120,120
+BouncerCard,GoonCard,TantrikCard,TerroristCard
+B:849,2,4,64,83|65,84,1,1
+Goon#1-4
+B:1241,2,4,47,63
+Archer#1-4
+ArcherCard|2|527,7,107,120|120,120,0,0
+Bouncer1|2|644,7,95,86|100,100,5,14
+Bouncer2|2|749,7,95,86|100,100,5,14
+Tantrik1|0|1150,7,38,65
+Tantrik2|0|1198,7,38,65
+Terrorist1|2|1474,7,52,48|72,65,0,17
+Terrorist2|2|1536,7,52,48|72,65,0,17
+Terrorist3|2|1598,7,52,48|72,65,0,17

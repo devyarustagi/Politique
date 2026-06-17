@@ -89,9 +89,7 @@ CREATE TABLE IF NOT EXISTS village_layout(
     type_id SMALLINT NOT NULL REFERENCES buildings_master_table(building_id) ON DELETE CASCADE,
     x_coordinate SMALLINT NOT NULL ,
     y_coordinate SMALLINT NOT NULL ,
-    CONSTRAINT unique_location UNIQUE(user_id, x_coordinate, y_coordinate) ,
-    CONSTRAINT valid_x CHECK( x_coordinate BETWEEN 0 AND 40 ) ,
-    CONSTRAINT valid_y CHECK( y_coordinate BETWEEN 0 AND 40 ) 
+    CONSTRAINT unique_location UNIQUE(user_id, x_coordinate, y_coordinate) 
 );
 
 CREATE TABLE IF NOT EXISTS tiers(

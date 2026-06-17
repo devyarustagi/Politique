@@ -50,24 +50,21 @@ export class ShopScene extends Phaser.Scene {
             const x = startX + (col * spacingX);
             const y = startY + (row * spacingY);
 
-            // Container for easier grouping
+
             const itemContainer = this.add.container(x, y);
 
-            // Item Background Card
             const cardBg = this.add.rectangle(0, 0, 200, 250, 0x333333, 1);
             cardBg.setStrokeStyle(4, 0x555555);
 
             const img = this.add.image(0, -30, 'buildings', item.textureKey);
             img.setDisplaySize(100, 100);
 
-            // Item Name Text
             const nameText = this.add.text(0, -100, item.name, {
                 fontSize: '20px',
                 color: '#ffffff',
                 align: 'center'
             }).setOrigin(0.5);
 
-            // Cost Text
             let c, buttonColor, interact;
             if (item.cost > resources.oil ){
                 c = '#ff0000';
@@ -101,12 +98,17 @@ export class ShopScene extends Phaser.Scene {
                 else{
                     resources.oil -= response.cost;
                     const building = gameinfo.info.buildings_master_table[response.id-1];
-                    if(building.building_type === "storage" && building.building_name !== "Mercenary-Camp"){
+                    if(building.building_type === "storage"){
                         gameinfo.info.storages.forEach(b => {
                             if( b.building_id === building.building_id ){
-                                resources.oilCap += b.storage_capacity;
+                                if(building.building_name !== "Mercenary-Camp"){
+                                    resources.oilCap += b.storage_capacity;
+                                }
+                                else{
+                                    resources.armyCap += b.storage_capacity;
+                                }
                             } 
-                        })
+                            })
                     }
                 }
                 this.scene.stop();

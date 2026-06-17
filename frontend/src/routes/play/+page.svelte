@@ -2,8 +2,9 @@
     import { onMount, onDestroy } from 'svelte';
     import Phaser from 'phaser';
     import { ResidenceScene } from '$lib/scenes/residence';
-    import { gameinfo, resources } from '$lib/gameState.svelte';
+    import { gameinfo, resources, userArmy } from '$lib/gameState.svelte';
 	import { ShopScene } from '$lib/scenes/shop';
+	import { ChooseArmyScene } from '$lib/scenes/army';
     let gameContainer;
     let game;
 
@@ -11,13 +12,51 @@
         $inspect(gameinfo);
         resources.oil = gameinfo.info.residence.oil;
         resources.gems = gameinfo.info.residence.gems;
+        resources.residenceLevel = gameinfo.info.residence.residence_level;
         gameinfo.info.village_layout.forEach((buildingData) => {
             const building = gameinfo.info.buildings_master_table[buildingData.type_id - 1];
-            if (building.building_type === "storage" && building.building_name !== "Mercenary-Camp") {
-                resources.oilCap += gameinfo.info.storages.find(x => x.building_id === building.building_id).storage_capacity;
+            if (building.building_type === "storage"){
+                const amt = gameinfo.info.storages.find(x => x.building_id === building.building_id).storage_capacity
+                if( building.building_name !== "Mercenary-Camp") {
+                    resources.oilCap += amt;
+                }
+                else {
+                    resources.armyCap += amt;
+                }
             }
         });
-        console.log(resources.oilCap);
+
+        //make storage capacities derived state of residenceLevel later
+        if(gameinfo.info.army !== null)
+        {
+            gameinfo.info.army.forEach((troop) => {
+                const baseIndex = troop.mercenary_id - 1;
+                const troopName = gameinfo.info.mercs[baseIndex].mercenary_name;
+                let idx = 0;
+                while ( baseIndex + idx < gameinfo.info.mercs.length && 
+                gameinfo.info.mercs[baseIndex + idx].mercenary_name === troopName )
+                {
+                    userArmy.push({
+                        ...gameinfo.info.mercs[baseIndex + idx],
+                        count: troop.count
+                    });
+                    idx += 1;
+                }
+                resources.armySz += (troop.count * gameinfo.info.mercs[baseIndex].housing_space);
+            });
+        }
+        else {
+            gameinfo.info.mercs.forEach((troop) => {
+                if( troop.unlock_level >= resources.residenceLevel ){
+                    userArmy.push(
+                        {
+                            ...troop,
+                            count: 0
+                        }
+                    )
+                }
+            })
+        }
         const config = {
             type: Phaser.AUTO,
             backgroundColor: "#71e026",
@@ -30,7 +69,7 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene, ShopScene]
+            scene: [ResidenceScene, ShopScene, ChooseArmyScene]
             }
             game = new Phaser.Game(config);
         });
@@ -40,22 +79,39 @@
             }
         });
 
+    function getActiveScene(){
+        return game.scene.getScenes(true)[0].sys.config;
+    }
+
     function openShop() {
         if (!game) return;
-        const unlockedItems = []
-        const residencelvl = gameinfo.info.residence.residence_level;
-        gameinfo.info.buildings_master_table.forEach((buildingData) => {
-            if(buildingData.unlock_level === residencelvl && buildingData.building_name !== 'Residence'){
-                unlockedItems.push({
-                    id: buildingData.building_id, 
-                    name: buildingData.building_name,
-                    cost: buildingData.upgrade_cost,
-                    textureKey: `${buildingData.building_name}1`
-                })
-            }
-        })
+        const currScene = getActiveScene();
+        if(currScene === "ResidenceScene"){
+            const unlockedItems = []
+            const residencelvl = gameinfo.info.residence.residence_level;
+            gameinfo.info.buildings_master_table.forEach((buildingData) => {
+                if(buildingData.unlock_level === residencelvl && buildingData.building_name !== 'Residence'){
+                    unlockedItems.push({
+                        id: buildingData.building_id, 
+                        name: buildingData.building_name,
+                        cost: buildingData.upgrade_cost,
+                        textureKey: `${buildingData.building_name}1`
+                    })
+                }
+            })
+            game.scene.pause('ResidenceScene');
+            game.scene.run('ShopScene', { items: unlockedItems });
+        }
+        else if(currScene === "ShopScene"){
+            game.scene.stop('ShopScene');
+            game.scene.resume("ResidenceScene");
+        }
+    }
+
+    function chooseArmy() {
+        if (!game) return;
         game.scene.pause('ResidenceScene');
-        game.scene.run('ShopScene', { items: unlockedItems });
+        game.scene.run('ChooseArmyScene');
     }
 </script>
 
@@ -93,7 +149,7 @@
                 </div>
             </div>
             <button class="psp-btn action-btn green" onclick={openShop}>🛒</button>
-            <button class="psp-btn action-btn red">⚔️</button>
+            <button class="psp-btn action-btn red" onclick={chooseArmy}>⚔️</button>
         </div>
 
     </div>

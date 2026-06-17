@@ -14,6 +14,7 @@ export class ResidenceScene extends Phaser.Scene {
             this.load.tilemapTiledJSON('my_map', mapUrl);
             this.load.setPath('assets/');
             this.load.atlasPCT('buildings', 'atlas.pct');
+            this.load.atlasPCT('mercenaries', 'mercenaries.pct')
             this.load.setPath();
         }
 
