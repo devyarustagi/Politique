@@ -5,6 +5,8 @@
     import { gameinfo, resources, userArmy } from '$lib/gameState.svelte';
 	import { ShopScene } from '$lib/scenes/shop';
 	import { ChooseArmyScene } from '$lib/scenes/army';
+	import { BattleScene } from '$lib/scenes/battle';
+    import { BattleUIScene } from '$lib/scenes/battleui';
     let gameContainer;
     let game;
 
@@ -69,7 +71,7 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene, ShopScene, ChooseArmyScene]
+            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene]
             }
             game = new Phaser.Game(config);
         });
@@ -90,7 +92,7 @@
             const unlockedItems = []
             const residencelvl = gameinfo.info.residence.residence_level;
             gameinfo.info.buildings_master_table.forEach((buildingData) => {
-                if(buildingData.unlock_level === residencelvl && buildingData.building_name !== 'Residence'){
+                if(buildingData.building_level === 1 && buildingData.building_name !== 'Residence'){
                     unlockedItems.push({
                         id: buildingData.building_id, 
                         name: buildingData.building_name,
@@ -110,8 +112,15 @@
 
     function chooseArmy() {
         if (!game) return;
-        game.scene.pause('ResidenceScene');
-        game.scene.run('ChooseArmyScene');
+        const currScene = getActiveScene();
+        if(currScene === "ResidenceScene"){
+            game.scene.pause('ResidenceScene');
+            game.scene.run('ChooseArmyScene');
+        }
+        else if(currScene === "ChooseArmyScene"){
+            game.scene.stop("ChooseArmyScene");
+            game.scene.resume("ResidenceScene");
+        }
     }
 </script>
 
