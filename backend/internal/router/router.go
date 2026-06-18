@@ -32,7 +32,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 		r.Post("/api/user/layout", handler.PostBuilding)
 		r.Patch("/api/user/layout/upgrade", handler.PatchLevel)
 		//r.Patch("/api/user/resources", handler.PatchCollectors)
-		//r.Post("/api/user/battle", handler.StartBattle)
+		r.Post("/api/user/battle", handler.StartBattle)
 	})
 
 	r.Group(func(r chi.Router) {
