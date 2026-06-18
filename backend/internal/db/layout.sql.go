@@ -132,3 +132,13 @@ func (q *Queries) UpgradeBuilding(ctx context.Context, globalID int64) error {
 	_, err := q.db.Exec(ctx, upgradeBuilding, globalID)
 	return err
 }
+
+const upgradeResidence = `-- name: UpgradeResidence :exec
+UPDATE residence_properties 
+SET residence_level = residence_level + 1 WHERE user_id = $1
+`
+
+func (q *Queries) UpgradeResidence(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, upgradeResidence, userID)
+	return err
+}

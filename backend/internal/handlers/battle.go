@@ -23,7 +23,7 @@ func (h *Handler) StartBattle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	//complete remaining to send the user the data of the opponent's base
+
 	opponentData, err := services.GetOpponentData(r.Context(), h.Pool, opponentUID)
 	if err != nil {
 		log.Printf("%v", err)

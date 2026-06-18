@@ -7,11 +7,11 @@
 	import { ChooseArmyScene } from '$lib/scenes/army';
 	import { BattleScene } from '$lib/scenes/battle';
     import { BattleUIScene } from '$lib/scenes/battleui';
+	import { BattleResultScene } from '$lib/scenes/battleresult';
     let gameContainer;
     let game;
 
     onMount(() => {
-        $inspect(gameinfo);
         resources.oil = gameinfo.info.residence.oil;
         resources.gems = gameinfo.info.residence.gems;
         resources.residenceLevel = gameinfo.info.residence.residence_level;
@@ -30,22 +30,30 @@
 
         //make storage capacities derived state of residenceLevel later
         if(gameinfo.info.army !== null)
-        {
-            gameinfo.info.army.forEach((troop) => {
-                const baseIndex = troop.mercenary_id - 1;
+        {   let index = 0;
+            //rely on the invariant that the army comes from the server sorted by merc id and the mercs table aslo comes sorted
+            for(const troop of gameinfo.info.mercs){ 
+                if(troop.unlock_level !== resources.residenceLevel) continue;
+                let baseIndex = troop.mercenary_id - 1;
                 const troopName = gameinfo.info.mercs[baseIndex].mercenary_name;
                 let idx = 0;
+                let ct = 0;
+                if( index < gameinfo.info.army.length && gameinfo.info.army[index].mercenary_id === troop.mercenary_id) {
+                    ct = gameinfo.info.army[index].count;
+                    index++;
+                }
                 while ( baseIndex + idx < gameinfo.info.mercs.length && 
                 gameinfo.info.mercs[baseIndex + idx].mercenary_name === troopName )
                 {
                     userArmy.push({
                         ...gameinfo.info.mercs[baseIndex + idx],
-                        count: troop.count
+                        count: ct
                     });
                     idx += 1;
                 }
-                resources.armySz += (troop.count * gameinfo.info.mercs[baseIndex].housing_space);
-            });
+                resources.armySz += (ct * troop.housing_space);
+                    
+            }
         }
         else {
             gameinfo.info.mercs.forEach((troop) => {
@@ -71,7 +79,7 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene]
+            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene, BattleResultScene]
             }
             game = new Phaser.Game(config);
         });
@@ -148,8 +156,12 @@
 
         <div class="psp-controls right-controls">
             <div class="resource-panel">
+                <div class="resource-pill username">
+                    <span class="resource-icon">🆔</span>
+                    <span class="resource-value">{gameinfo.info.residence.username}</span>
+                </div>
                 <div class="resource-pill dark-elixir">
-                    <span class="resource-icon">💧</span>
+                    <span class="resource-icon">🛢️</span>
                     <span class="resource-value">{resources.oil}/{resources.oilCap}</span>
                 </div>
                 <div class="resource-pill gems">
@@ -298,21 +310,24 @@
 
     .resource-value {
         font-family: "Courier New", Courier, monospace; /* Classic digital readout font */
-        font-size: 0.75rem;
+        font-size: 0.625rem;
         font-weight: 900;
         letter-spacing: 1px;
     }
 
-    /* Dark Elixir (Oil) Neon Glow */
     .resource-pill.dark-elixir .resource-value {
         color: #e9d5ff; 
         text-shadow: 0 0 8px #9333ea, 0 0 15px #7e22ce, 0 0 20px #581c87;
     }
 
-    /* Gems Neon Glow */
     .resource-pill.gems .resource-value {
         color: #a7f3d0; 
         text-shadow: 0 0 8px #10b981, 0 0 15px #059669, 0 0 20px #047857;
+    }
+
+    .resource-pill.username .resource-value {
+        color: #dddf5a; 
+        text-shadow: 0 0 8px #e7be0c, 0 0 15px #d2af32, 0 0 20px #a77012;
     }
 
     /* 5. The Physical Buttons */

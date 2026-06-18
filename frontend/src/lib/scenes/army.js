@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { resources, gameinfo, userArmy } from "$lib/gameState.svelte";
 import { trainArmy } from "$lib/api/trainArmy";
+import { startBattle } from "$lib/api/startBattle";
 
 export class ChooseArmyScene extends Phaser.Scene {
     constructor() {
@@ -81,9 +82,6 @@ export class ChooseArmyScene extends Phaser.Scene {
                 return; 
             }
             index += 1;
-            
-            // FIX: Updated log to use residenceLevel
-            console.log(`Troop: ${troop.mercenary_name}, Unlock: ${troop.unlock_level}, Current TH: ${resources.residenceLevel}`);
             
             const row = Math.floor(index / columns);
             const col = index % columns;
@@ -206,9 +204,16 @@ export class ChooseArmyScene extends Phaser.Scene {
                 return;
             }
             else{
-                //call battle handler
-            }
+                
+                const opponentData = await startBattle()
+                if (opponentData !== false) {
+                    this.scene.stop('ChooseArmyScene');
+                    this.scene.start('BattleScene', opponentData)
+                }
+            };
+            return;
         });
+        
 
         cancelBg.on('pointerover', () => cancelBg.setFillStyle(0xe74c3c));
         cancelBg.on('pointerout', () => cancelBg.setFillStyle(0xc0392b));
@@ -221,9 +226,8 @@ export class ChooseArmyScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
         
-        // --- INCREASED POPUP SIZE ---
-        const popupWidth = 800;  // Was 620
-        const popupHeight = 560; // Was 420
+        const popupWidth = 800;  
+        const popupHeight = 560; 
 
         this.infoPopupContainer = this.add.container(width / 2, height / 2).setDepth(1000).setVisible(false);
 
@@ -235,44 +239,41 @@ export class ChooseArmyScene extends Phaser.Scene {
         const panelBg = this.add.rectangle(0, 0, popupWidth, popupHeight, 0x3e2723, 1)
             .setStrokeStyle(8, 0x1a0f0a);
 
-        const closeBtn = this.add.circle(popupWidth / 2 - 30, -popupHeight / 2 + 30, 20, 0xc0392b, 1) // Slightly larger button
+        const closeBtn = this.add.circle(popupWidth / 2 - 30, -popupHeight / 2 + 30, 20, 0xc0392b, 1) 
             .setStrokeStyle(3, 0x1a0f0a)
             .setInteractive({ useHandCursor: true });
         const closeIcon = this.add.text(popupWidth / 2 - 30, -popupHeight / 2 + 30, "X", {
-            fontFamily: 'Arial, sans-serif', fontSize: '24px', color: '#ffffff', fontStyle: 'bold' // Larger X
+            fontFamily: 'Arial, sans-serif', fontSize: '24px', color: '#ffffff', fontStyle: 'bold' 
         }).setOrigin(0.5);
         closeBtn.on('pointerdown', () => this.hideInfoPopup());
         closeBtn.on('pointerover', () => closeBtn.setFillStyle(0xe74c3c));
         closeBtn.on('pointerout', () => closeBtn.setFillStyle(0xc0392b));
 
-        // Larger Title Text
+
         this.popupNameText = this.add.text(0, -popupHeight / 2 + 50, "", {
-            fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '44px', color: '#ffd54f', fontStyle: 'bold', // Was 34px
+            fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '44px', color: '#ffd54f', fontStyle: 'bold', 
             stroke: '#1a0f0a', strokeThickness: 6
         }).setOrigin(0.5);
 
-        // Larger Image & Frame
-        const imgFrameX = -popupWidth / 2 + 180; // Shifted right slightly
+        const imgFrameX = -popupWidth / 2 + 180; 
         const imgFrameY = -20;
-        const imgFrame = this.add.rectangle(imgFrameX, imgFrameY, 260, 260, 0xd7ccc8, 1) // Was 200x200
+        const imgFrame = this.add.rectangle(imgFrameX, imgFrameY, 260, 260, 0xd7ccc8, 1) 
             .setStrokeStyle(4, 0x1a0f0a);
-        this.popupImage = this.add.image(imgFrameX, imgFrameY, 'mercenaries', '').setDisplaySize(220, 220); // Was 160x160
+        this.popupImage = this.add.image(imgFrameX, imgFrameY, 'mercenaries', '').setDisplaySize(220, 220);
 
-        const textX = -popupWidth / 2 + 340; // Shifted right to accommodate bigger image
+        const textX = -popupWidth / 2 + 340; 
         const textTop = -popupHeight / 2 + 130;
 
-        // Larger Description Text
         this.popupDescText = this.add.text(textX, textTop, "", {
-            fontFamily: 'Arial, sans-serif', fontSize: '22px', color: '#e0d6cc', // Was 17px
+            fontFamily: 'Arial, sans-serif', fontSize: '22px', color: '#e0d6cc', 
             wordWrap: { width: popupWidth - 400 }, lineSpacing: 6
         }).setOrigin(0, 0);
 
-        // Larger Stats Text
-        const statLabelStyle = { fontFamily: 'Arial, sans-serif', fontSize: '22px', color: '#bfae9c', fontStyle: 'bold' }; // Was 17px
-        const statValueStyle = { fontFamily: 'Courier New, monospace', fontSize: '22px', color: '#ffd54f', fontStyle: 'bold' }; // Was 17px
+        const statLabelStyle = { fontFamily: 'Arial, sans-serif', fontSize: '22px', color: '#bfae9c', fontStyle: 'bold' }; 
+        const statValueStyle = { fontFamily: 'Courier New, monospace', fontSize: '22px', color: '#ffd54f', fontStyle: 'bold' }; 
 
-        const statsStartY = textTop + 160; // Pushed down to clear description
-        const statRowGap = 40; // Increased spacing between rows (was 30)
+        const statsStartY = textTop + 160; 
+        const statRowGap = 40; 
         const statLabels = ["HP", "DPS", "Move speed", "Attack range", "Housing space"];
 
         this.popupStatLabelTexts = [];
@@ -281,7 +282,6 @@ export class ChooseArmyScene extends Phaser.Scene {
         statLabels.forEach((label, i) => {
             const rowY = statsStartY + i * statRowGap;
             this.popupStatLabelTexts.push(this.add.text(textX, rowY, `${label}:`, statLabelStyle).setOrigin(0, 0.5));
-            // Shifted the values column further right to align beautifully with larger fonts
             this.popupStatValueTexts.push(this.add.text(textX + 220, rowY, "", statValueStyle).setOrigin(0, 0.5)); 
         });
 

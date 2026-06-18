@@ -22,3 +22,7 @@ RETURNING global_id;
 -- name: UpgradeBuilding :exec
 UPDATE village_layout
 SET type_id = type_id + 1 WHERE global_id = $1;
+
+-- name: UpgradeResidence :exec
+UPDATE residence_properties 
+SET residence_level = residence_level + 1 WHERE user_id = $1;

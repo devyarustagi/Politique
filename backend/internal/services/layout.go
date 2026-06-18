@@ -198,6 +198,12 @@ func UpgradeBuilding(ctx context.Context, p *pgxpool.Pool, upgradeInfo *dtors.Up
 	if err != nil {
 		return err
 	}
+	if config.BMT[typeID].BuildingName == "Residence"{
+		err = qtx.UpgradeResidence(ctx, uid);
+		if err != nil {
+			return err
+		}
+	}
 	return tx.Commit(ctx)
 }
 

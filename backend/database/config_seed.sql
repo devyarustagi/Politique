@@ -83,8 +83,8 @@ VALUES
 (19, 'defense', 'Archer-Tower', 3,  500, 3, 20000,  'Ranged defense that targets both ground and air troops.', 4),
 
 -- ── MORTAR ────────────────────────────────────────────────────
-(20, 'defense', 'Mortar', 1,  400, 3, 5000,      'Lobs shells in an arc dealing splash damage. Cannot target nearby troops.', 3),
-(21, 'defense', 'Mortar', 2,  450, 3, 25000,   'Lobs shells in an arc dealing splash damage. Cannot target nearby troops.', 4),
+(20, 'defense', 'Mortar', 1,  400, 3, 5000,      'Lobs shells in an arc dealing splash damage.', 3),
+(21, 'defense', 'Mortar', 2,  450, 3, 25000,   'Lobs shells in an arc dealing splash damage.', 4),
 
 -- ── OIL COLLECTOR ─────────────────────────────────────────────
 (22, 'collector', 'Oil-Drill', 1,  150, 3, 150,      'Pumps oil over time and stores it until collected.', 1),
