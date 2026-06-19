@@ -1,3 +1,5 @@
+import { finishBattle } from "$lib/api/finishBattle";
+import { resources } from "$lib/gameState.svelte";
 import Phaser from "phaser";
 
 export class BattleResultScene extends Phaser.Scene {
@@ -49,7 +51,15 @@ export class BattleResultScene extends Phaser.Scene {
             fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        okBtn.on('pointerdown', () => {
+        okBtn.on('pointerdown', async () => {
+            const result = {
+                karma_gained: this.karmaWon,
+                oil_looted: this.oilLooted
+            };
+            const ok = await finishBattle(result);
+            if(ok === true){
+                resources.oil += this.oilLooted;
+            }
             this.scene.stop();
             this.scene.start('ResidenceScene');
         });

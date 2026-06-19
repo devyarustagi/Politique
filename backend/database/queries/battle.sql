@@ -37,3 +37,34 @@ WHERE creds.user_id = $1;
 -- name: GetDefenderVillageLayout :many
 SELECT type_id, x_coordinate, y_coordinate FROM
 village_layout WHERE user_id = $1;
+
+-- name: GetDefenderUID :one
+SELECT attacking_on FROM residence_properties
+WHERE user_id = $1;
+
+-- name: UpdateAttackerResidence :exec
+UPDATE residence_properties SET 
+in_battle = FALSE, oil = oil + $1,
+attacking_on = $2
+WHERE user_id = $2;
+
+-- name: UpdateAttackerStats :exec
+UPDATE user_stats SET
+total_attacks = total_attacks + 1,
+attacks_won = attacks_won + $2,
+karma = karma + $3,
+oil_looted = oil_looted + $4
+WHERE user_id = $1;
+
+-- name: UpdateDefenderResidence :exec
+UPDATE residence_properties SET
+under_attack = FALSE,
+last_attacked = CURRENT_TIMESTAMP
+WHERE user_id = $1;
+
+-- name: UpdateDefenderStats :exec
+UPDATE user_stats SET
+total_defenses = total_defenses + 1,
+defenses_won = defenses_won + $2,
+karma = karma + $3
+WHERE user_id = $1;

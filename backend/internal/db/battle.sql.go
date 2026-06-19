@@ -30,6 +30,18 @@ func (q *Queries) GetDefenderNameKarma(ctx context.Context, userID uuid.UUID) (G
 	return i, err
 }
 
+const getDefenderUID = `-- name: GetDefenderUID :one
+SELECT attacking_on FROM residence_properties
+WHERE user_id = $1
+`
+
+func (q *Queries) GetDefenderUID(ctx context.Context, userID uuid.UUID) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, getDefenderUID, userID)
+	var attacking_on uuid.UUID
+	err := row.Scan(&attacking_on)
+	return attacking_on, err
+}
+
 const getDefenderVillageLayout = `-- name: GetDefenderVillageLayout :many
 SELECT type_id, x_coordinate, y_coordinate FROM
 village_layout WHERE user_id = $1
@@ -127,5 +139,79 @@ type SetInBattleParams struct {
 
 func (q *Queries) SetInBattle(ctx context.Context, arg SetInBattleParams) error {
 	_, err := q.db.Exec(ctx, setInBattle, arg.UserID, arg.AttackingOn)
+	return err
+}
+
+const updateAttackerResidence = `-- name: UpdateAttackerResidence :exec
+UPDATE residence_properties SET 
+in_battle = FALSE, oil = oil + $1,
+attacking_on = $2
+WHERE user_id = $2
+`
+
+type UpdateAttackerResidenceParams struct {
+	Oil         int32     `json:"oil"`
+	AttackingOn uuid.UUID `json:"attacking_on"`
+}
+
+func (q *Queries) UpdateAttackerResidence(ctx context.Context, arg UpdateAttackerResidenceParams) error {
+	_, err := q.db.Exec(ctx, updateAttackerResidence, arg.Oil, arg.AttackingOn)
+	return err
+}
+
+const updateAttackerStats = `-- name: UpdateAttackerStats :exec
+UPDATE user_stats SET
+total_attacks = total_attacks + 1,
+attacks_won = attacks_won + $2,
+karma = karma + $3,
+oil_looted = oil_looted + $4
+WHERE user_id = $1
+`
+
+type UpdateAttackerStatsParams struct {
+	UserID     uuid.UUID `json:"user_id"`
+	AttacksWon int32     `json:"attacks_won"`
+	Karma      int32     `json:"karma"`
+	OilLooted  int64     `json:"oil_looted"`
+}
+
+func (q *Queries) UpdateAttackerStats(ctx context.Context, arg UpdateAttackerStatsParams) error {
+	_, err := q.db.Exec(ctx, updateAttackerStats,
+		arg.UserID,
+		arg.AttacksWon,
+		arg.Karma,
+		arg.OilLooted,
+	)
+	return err
+}
+
+const updateDefenderResidence = `-- name: UpdateDefenderResidence :exec
+UPDATE residence_properties SET
+under_attack = FALSE,
+last_attacked = CURRENT_TIMESTAMP
+WHERE user_id = $1
+`
+
+func (q *Queries) UpdateDefenderResidence(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, updateDefenderResidence, userID)
+	return err
+}
+
+const updateDefenderStats = `-- name: UpdateDefenderStats :exec
+UPDATE user_stats SET
+total_defenses = total_defenses + 1,
+defenses_won = defenses_won + $2,
+karma = karma + $3
+WHERE user_id = $1
+`
+
+type UpdateDefenderStatsParams struct {
+	UserID      uuid.UUID `json:"user_id"`
+	DefensesWon int32     `json:"defenses_won"`
+	Karma       int32     `json:"karma"`
+}
+
+func (q *Queries) UpdateDefenderStats(ctx context.Context, arg UpdateDefenderStatsParams) error {
+	_, err := q.db.Exec(ctx, updateDefenderStats, arg.UserID, arg.DefensesWon, arg.Karma)
 	return err
 }
