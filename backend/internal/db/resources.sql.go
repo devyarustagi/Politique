@@ -7,9 +7,41 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+const getUserGemsTz = `-- name: GetUserGemsTz :one
+SELECT gems_last_collected
+FROM residence_properties
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserGemsTz(ctx context.Context, userID uuid.UUID) (time.Time, error) {
+	row := q.db.QueryRow(ctx, getUserGemsTz, userID)
+	var gems_last_collected time.Time
+	err := row.Scan(&gems_last_collected)
+	return gems_last_collected, err
+}
+
+const getUserOilAmtTz = `-- name: GetUserOilAmtTz :one
+SELECT oil, oil_last_collected
+FROM residence_properties 
+WHERE user_id = $1
+`
+
+type GetUserOilAmtTzRow struct {
+	Oil              int32     `json:"oil"`
+	OilLastCollected time.Time `json:"oil_last_collected"`
+}
+
+func (q *Queries) GetUserOilAmtTz(ctx context.Context, userID uuid.UUID) (GetUserOilAmtTzRow, error) {
+	row := q.db.QueryRow(ctx, getUserOilAmtTz, userID)
+	var i GetUserOilAmtTzRow
+	err := row.Scan(&i.Oil, &i.OilLastCollected)
+	return i, err
+}
 
 const spendGems = `-- name: SpendGems :exec
 UPDATE residence_properties
@@ -38,5 +70,41 @@ type SpendOilParams struct {
 
 func (q *Queries) SpendOil(ctx context.Context, arg SpendOilParams) error {
 	_, err := q.db.Exec(ctx, spendOil, arg.UserID, arg.Oil)
+	return err
+}
+
+const updataUserOilAmtTz = `-- name: UpdataUserOilAmtTz :exec
+UPDATE residence_properties
+SET oil = oil + $1,
+oil_last_collected = $2
+WHERE user_id = $3
+`
+
+type UpdataUserOilAmtTzParams struct {
+	Oil              int32     `json:"oil"`
+	OilLastCollected time.Time `json:"oil_last_collected"`
+	UserID           uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) UpdataUserOilAmtTz(ctx context.Context, arg UpdataUserOilAmtTzParams) error {
+	_, err := q.db.Exec(ctx, updataUserOilAmtTz, arg.Oil, arg.OilLastCollected, arg.UserID)
+	return err
+}
+
+const updateUserGemsAmtTz = `-- name: UpdateUserGemsAmtTz :exec
+UPDATE residence_properties
+SET gems = gems + $1,
+gems_last_collected = $2
+WHERE user_id = $3
+`
+
+type UpdateUserGemsAmtTzParams struct {
+	Gems              int32     `json:"gems"`
+	GemsLastCollected time.Time `json:"gems_last_collected"`
+	UserID            uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) UpdateUserGemsAmtTz(ctx context.Context, arg UpdateUserGemsAmtTzParams) error {
+	_, err := q.db.Exec(ctx, updateUserGemsAmtTz, arg.Gems, arg.GemsLastCollected, arg.UserID)
 	return err
 }

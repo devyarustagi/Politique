@@ -31,7 +31,6 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 		r.Patch("/api/user/layout/move", handler.PatchPosition)
 		r.Post("/api/user/layout", handler.PostBuilding)
 		r.Patch("/api/user/layout/upgrade", handler.PatchLevel)
-		//r.Patch("/api/user/resources", handler.PatchCollectors)
 		r.Get("/api/user/battle", handler.StartBattle)
 	})
 
@@ -41,6 +40,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 		r.Get("/api/user/load", handler.Load)
 		r.Get("/api/user/army", handler.GetArmy)
 		r.Patch("/api/user/army", handler.PatchArmy)
+		r.Patch("/api/user/resources", handler.PatchResources)
 	})
 	return r
 }
