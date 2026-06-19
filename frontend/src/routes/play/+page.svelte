@@ -8,6 +8,7 @@
 	import { BattleScene } from '$lib/scenes/battle';
     import { BattleUIScene } from '$lib/scenes/battleui';
 	import { BattleResultScene } from '$lib/scenes/battleresult';
+    import { collectResource } from '$lib/api/collectResource';
     let gameContainer;
     let game;
 
@@ -130,20 +131,27 @@
             game.scene.resume("ResidenceScene");
         }
     }
+    async function getOil(){
+        const amt = await collectResource({resource: "oil"})
+        resources.oil += amt.amount
+    }
+    async function getGems(){
+        const amt = await collectResource({resource: "gems"})
+        resources.gems += amt.amount
+    }
 </script>
 
 <div class="desk-background">
-<!--html css credits go to gemini pro-->
     <div class="psp-device">
         
         <div class="psp-controls left-controls d-pad-container">
             <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn">🏆</button>
+                <button class="psp-btn d-pad-btn" >💀</button>
             </div>
             <div class="d-pad-row center-row">
-                <button class="psp-btn d-pad-btn">⏪</button>
+                <button class="psp-btn d-pad-btn" onclick={getOil}>🛢️</button>
                 <div class="d-pad-center"></div> 
-                <button class="psp-btn d-pad-btn">⚙️</button>
+                <button class="psp-btn d-pad-btn" onclick={getGems}>💎</button>
             </div>
             <div class="d-pad-row">
                 <button class="psp-btn d-pad-btn">📊</button>

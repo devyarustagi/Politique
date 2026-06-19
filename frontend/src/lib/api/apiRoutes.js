@@ -13,5 +13,6 @@ export const api = {
     newBuilding: () => `${BASE}/api/user/layout`,
     army: () => `${BASE}/api/user/army`,
     battle: () => `${BASE}/api/user/battle`,
-    upgradeBuilding: () => `${BASE}/api/user/layout/upgrade`
+    upgradeBuilding: () => `${BASE}/api/user/layout/upgrade`,
+    collectResource: () => `${BASE}/api/user/resources`
 }
