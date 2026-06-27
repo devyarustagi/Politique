@@ -30,7 +30,7 @@ func main(){
 	}
 
 	r:= router.RouterSetup(pool)
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe("0.0.0.0:8080", r)
 	
 	
 }

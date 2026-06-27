@@ -13,10 +13,7 @@ node_modules
 .DS_Store
 Thumbs.db
 
-# Env
-# going to commit env file for ease of testing, the frontend env file only contains my go backend api endpoint for maintanbility
-#won't do this in actual prod
-#.env 
+.env 
 .env.*
 !.env.example
 !.env.test

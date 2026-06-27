@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:26-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -6,17 +6,26 @@ RUN npm ci
 
 COPY . .
 
-ARG PUBLIC_API_URL
-ENV PUBLIC_API_URL=$PUBLIC_API_URL
-
 RUN npm run build
 
-FROM node:20-alpine
+RUN npm prune --omit=dev
+
+FROM node:26-alpine AS runner
 WORKDIR /app
 
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+ENV NODE_ENV=production
+
+RUN addgroup -S -g 1001 sveltekit
+RUN adduser -S -u 1001 -G sveltekit sveltekit
+
+COPY --from=builder --chown=sveltekit:sveltekit /app/build ./build
+COPY --from=builder --chown=sveltekit:sveltekit /app/node_modules ./node_modules
+COPY --chown=sveltekit:sveltekit package.json .
+
+USER sveltekit
 
 EXPOSE 3000
-CMD ["node", "build"]
+ENV PORT=3000
+ENV HOST=0.0.0.0
+
+CMD ["node", "build/index.js"]

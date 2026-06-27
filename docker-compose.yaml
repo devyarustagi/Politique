@@ -1,16 +1,16 @@
 services:
-  db:
+  database:
     image: postgres:18.4-alpine3.23
-    container_name: pg_database
+    container_name: politique_database
     env_file:
-      - .env
+      - .env.sample.database
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 2s
       timeout: 5s
       retries: 10
@@ -18,25 +18,24 @@ services:
 
   migrate:
     image: migrate/migrate:latest
-    container_name: migration_runner
+    container_name: politique_migrater
     env_file:
-      - .env
+      - .env.sample.database
     depends_on:
-      db:
+      database:
         condition: service_healthy
     volumes:
       - ./backend/database/migrations:/migrations
+    entrypoint: ["sh", "-c"]
     command: >
-      -path=/migrations
-      -database=${DATABASE_URL}
-      up
+      "migrate -path=/migrations -database=$${DATABASE_URL} up"
     restart: on-failure
 
   seeder:
     image: postgres:18.4-alpine3.23
-    container_name: seed_runner
+    container_name: politique_seeder
     env_file:
-      - .env
+      - .env.sample.database
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -45,10 +44,37 @@ services:
       - ./backend/database/dummy_users_seed.sql:/seeds/dummy_users_seed.sql
     command: >
       sh -c "
-        psql -d ${DATABASE_URL} -f /seeds/config_seed.sql &&
-        psql -d ${DATABASE_URL} -f /seeds/dummy_users_seed.sql
+        psql -d $${DATABASE_URL} -f /seeds/config_seed.sql &&
+        psql -d $${DATABASE_URL} -f /seeds/dummy_users_seed.sql
       "
     restart: on-failure
+  backend:
+    build: 
+      context: ./backend
+    image: politique_backend
+    container_name: politique_backend
+    env_file:
+      - .env.sample.backend
+      - .env.sample.database
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      seeder:
+        condition: service_completed_successfully
+    restart: always
+  frontend:
+    build:
+      context: ./frontend
+    image: politique_frontend
+    container_name: politique_frontend
+    env_file:
+      - .env.sample.frontend
+    ports: 
+      - "3000:3000"
 
 volumes: 
   postgres_data:
