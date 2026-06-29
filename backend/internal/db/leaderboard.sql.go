@@ -14,18 +14,20 @@ import (
 const leaderboard = `-- name: Leaderboard :many
 SELECT 
 DENSE_RANK() OVER(ORDER BY karma DESC) AS rank,
-creds.user_id, username, attacks_won, defenses_won, karma
+creds.user_id, username, attacks_won, total_attacks, defenses_won, total_defenses, karma
 FROM creds JOIN user_stats ON creds.user_id = user_stats.user_id
 LIMIT 100
 `
 
 type LeaderboardRow struct {
-	Rank        int64     `json:"rank"`
-	UserID      uuid.UUID `json:"user_id"`
-	Username    string    `json:"username"`
-	AttacksWon  int32     `json:"attacks_won"`
-	DefensesWon int32     `json:"defenses_won"`
-	Karma       int32     `json:"karma"`
+	Rank          int64     `json:"rank"`
+	UserID        uuid.UUID `json:"user_id"`
+	Username      string    `json:"username"`
+	AttacksWon    int32     `json:"attacks_won"`
+	TotalAttacks  int32     `json:"total_attacks"`
+	DefensesWon   int32     `json:"defenses_won"`
+	TotalDefenses int32     `json:"total_defenses"`
+	Karma         int32     `json:"karma"`
 }
 
 func (q *Queries) Leaderboard(ctx context.Context) ([]LeaderboardRow, error) {
@@ -42,7 +44,9 @@ func (q *Queries) Leaderboard(ctx context.Context) ([]LeaderboardRow, error) {
 			&i.UserID,
 			&i.Username,
 			&i.AttacksWon,
+			&i.TotalAttacks,
 			&i.DefensesWon,
+			&i.TotalDefenses,
 			&i.Karma,
 		); err != nil {
 			return nil, err
@@ -56,9 +60,14 @@ func (q *Queries) Leaderboard(ctx context.Context) ([]LeaderboardRow, error) {
 }
 
 const userPercentile = `-- name: UserPercentile :one
-SELECT 
-ROUND((PERCENT_RANK() OVER (ORDER BY karma ASC) * 100) ::NUMERIC, 2) AS percentile
-FROM user_stats WHERE user_id = $1
+SELECT percentile
+FROM (
+    SELECT
+        user_id,
+        ROUND((PERCENT_RANK() OVER (ORDER BY karma ASC) * 100)::NUMERIC, 2) AS percentile
+    FROM user_stats
+)
+WHERE user_id = $1
 `
 
 func (q *Queries) UserPercentile(ctx context.Context, userID uuid.UUID) (float64, error) {
