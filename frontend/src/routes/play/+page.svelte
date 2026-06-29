@@ -9,6 +9,8 @@
     import { BattleUIScene } from '$lib/scenes/battleui';
 	import { BattleResultScene } from '$lib/scenes/battleresult';
     import { collectResource } from '$lib/api/collectResource';
+	import { LeaderboardScene } from '$lib/scenes/leaderboard';
+    import { getLeaderboardData } from '$lib/api/leaderboard';
     let gameContainer;
     let game;
 
@@ -80,7 +82,7 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene, BattleResultScene]
+            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene, BattleResultScene, LeaderboardScene]
             }
             game = new Phaser.Game(config);
         });
@@ -131,6 +133,23 @@
             game.scene.resume("ResidenceScene");
         }
     }
+    async function openLeaderboard() {
+        if (!game) return;
+        const currScene = getActiveScene();
+        if(currScene === "ResidenceScene"){
+            const leaderboardData = await getLeaderboardData();
+            if( leaderboardData === false ){
+                return;
+            }
+            game.scene.pause('ResidenceScene');
+            game.scene.run('LeaderboardScene', leaderboardData);
+        }
+        else if(currScene === "LeaderboardScene"){
+            game.scene.stop('LeaderboardScene');
+            game.scene.resume('ResidenceScene');
+        } 
+    }
+    
     async function getOil(){
         const amt = await collectResource({resource: "oil"})
         resources.oil += amt.amount
@@ -154,7 +173,7 @@
                 <button class="psp-btn d-pad-btn" onclick={getGems}>💎</button>
             </div>
             <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn">📊</button>
+                <button class="psp-btn d-pad-btn" onclick={openLeaderboard}>📊</button>
             </div>
         </div>
 

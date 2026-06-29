@@ -1,6 +1,4 @@
 import { env } from '$env/dynamic/public'
-import { trainArmy } from './trainArmy'
-import { upgradeBuilding } from './upgradeBuilding'
 
 const BASE = env.PUBLIC_API_URL
 
@@ -14,5 +12,6 @@ export const api = {
     army: () => `${BASE}/api/user/army`,
     battle: () => `${BASE}/api/user/battle`,
     upgradeBuilding: () => `${BASE}/api/user/layout/upgrade`,
-    collectResource: () => `${BASE}/api/user/resources`
+    collectResource: () => `${BASE}/api/user/resources`,
+    leaderboard: () => `${BASE}/api/user/leaderboard`
 }
