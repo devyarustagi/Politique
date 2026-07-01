@@ -3,7 +3,7 @@ services:
     image: postgres:18.4-alpine3.23
     container_name: politique_database
     env_file:
-      - .env.sample.database
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -20,7 +20,7 @@ services:
     image: migrate/migrate:latest
     container_name: politique_migrater
     env_file:
-      - .env.sample.database
+      - .env
     depends_on:
       database:
         condition: service_healthy
@@ -35,7 +35,7 @@ services:
     image: postgres:18.4-alpine3.23
     container_name: politique_seeder
     env_file:
-      - .env.sample.database
+      - .env
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -54,8 +54,8 @@ services:
     image: politique_backend
     container_name: politique_backend
     env_file:
-      - .env.sample.backend
-      - .env.sample.database
+      - ./backend/.env
+      - .env
     ports:
       - "8080:8080"
     depends_on:
@@ -72,7 +72,7 @@ services:
     image: politique_frontend
     container_name: politique_frontend
     env_file:
-      - .env.sample.frontend
+      - ./frontend/.env
     ports: 
       - "3000:3000"
 
