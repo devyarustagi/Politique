@@ -72,7 +72,7 @@
         }
         const config = {
             type: Phaser.AUTO,
-            backgroundColor: "#71e026",
+            backgroundColor: "#211002",
             width: 1408, 
             height: 1408,
             title: "Politique",
