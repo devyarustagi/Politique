@@ -344,6 +344,7 @@ export class ResidenceScene extends Phaser.Scene {
         closeBtn.on('pointerdown', () => this.upgradePopup.setVisible(false));
 
         this.upgTitle = this.add.text(0, -100, "", { fontFamily: 'Georgia', fontSize: '28px', color: '#ffd54f', fontStyle: 'bold' }).setOrigin(0.5);
+        const chooseText = this.add.text(0, -50, "Choose resource", { fontFamily: 'Georgia', fontSize: '24px', color: '#ffd54f', fontStyle: 'bold' }).setOrigin(0.5);
 
         // Oil Upgrade Button
         const oilBtn = this.add.rectangle(-100, 30, 160, 60, 0x34495e).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
@@ -386,7 +387,7 @@ export class ResidenceScene extends Phaser.Scene {
             this.upgradePopup.setVisible(false);
         });
 
-        this.upgradePopup.add([backdrop, panel, closeBtn, this.upgTitle, oilBtn, this.oilCostText, gemBtn, this.gemCostText]);
+        this.upgradePopup.add([backdrop, panel, closeBtn, this.upgTitle, oilBtn, this.oilCostText, gemBtn, this.gemCostText, chooseText]);
     }
 
     upgradeBuilding(upgradeInfo){
