@@ -3,13 +3,13 @@
     import Phaser from 'phaser';
     import { ResidenceScene } from '$lib/scenes/residence';
     import { gameinfo, resources, userArmy } from '$lib/gameState.svelte';
-	import { ShopScene } from '$lib/scenes/shop';
-	import { ChooseArmyScene } from '$lib/scenes/army';
-	import { BattleScene } from '$lib/scenes/battle';
+    import { ShopScene } from '$lib/scenes/shop';
+    import { ChooseArmyScene } from '$lib/scenes/army';
+    import { BattleScene } from '$lib/scenes/battle';
     import { BattleUIScene } from '$lib/scenes/battleui';
-	import { BattleResultScene } from '$lib/scenes/battleresult';
+    import { BattleResultScene } from '$lib/scenes/battleresult';
     import { collectResource } from '$lib/api/collectResource';
-	import { LeaderboardScene } from '$lib/scenes/leaderboard';
+    import { LeaderboardScene } from '$lib/scenes/leaderboard';
     import { getLeaderboardData } from '$lib/api/leaderboard';
     let gameContainer;
     let game;
@@ -165,15 +165,15 @@
         
         <div class="psp-controls left-controls d-pad-container">
             <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn" >💀</button>
+                <button class="psp-btn d-pad-btn" data-tooltip="Quit / Action">💀</button>
             </div>
             <div class="d-pad-row center-row">
-                <button class="psp-btn d-pad-btn" onclick={getOil}>🛢️</button>
+                <button class="psp-btn d-pad-btn" onclick={getOil} data-tooltip="Collect Oil">🛢️</button>
                 <div class="d-pad-center"></div> 
-                <button class="psp-btn d-pad-btn" onclick={getGems}>💎</button>
+                <button class="psp-btn d-pad-btn" onclick={getGems} data-tooltip="Collect Gems">💎</button>
             </div>
             <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn" onclick={openLeaderboard}>📊</button>
+                <button class="psp-btn d-pad-btn" onclick={openLeaderboard} data-tooltip="Leaderboard">📊</button>
             </div>
         </div>
 
@@ -196,8 +196,8 @@
                     <span class="resource-value">{resources.gems}</span>
                 </div>
             </div>
-            <button class="psp-btn action-btn green" onclick={openShop}>🛒</button>
-            <button class="psp-btn action-btn red" onclick={chooseArmy}>⚔️</button>
+            <button class="psp-btn action-btn green" onclick={openShop} data-tooltip="Open Shop">🛒</button>
+            <button class="psp-btn action-btn red" onclick={chooseArmy} data-tooltip="Choose Army">⚔️</button>
         </div>
 
     </div>
@@ -357,7 +357,7 @@
         text-shadow: 0 0 8px #e7be0c, 0 0 15px #d2af32, 0 0 20px #a77012;
     }
 
-    /* 5. The Physical Buttons */
+    /* 5. The Physical Buttons & Tooltips */
     .psp-btn {
         display: flex;
         justify-content: center;
@@ -365,6 +365,34 @@
         border: none;
         cursor: pointer;
         transition: all 0.1s;
+        position: relative; /* Added to anchor the tooltip */
+    }
+
+    /* Tooltip styling */
+    .psp-btn::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 110%; /* Positions it slightly above the button */
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(5, 5, 5, 0.95);
+        color: #a7f3d0;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 12px;
+        font-weight: bold;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease-in-out;
+        z-index: 50;
+        border: 1px solid #3a7a50;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    }
+
+    .psp-btn:hover::after {
+        opacity: 1;
     }
 
     /* Upgraded D-Pad Buttons (Premium Plastic/Metal look) */
