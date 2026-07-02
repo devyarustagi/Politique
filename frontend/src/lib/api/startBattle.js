@@ -26,12 +26,10 @@ export async function startBattle(){
     }
     catch (error) {
         if (error instanceof TypeError) {
-            console.error(error)
-            alert("Request could not be processed. Please check your network connection and try again.");
-            return false;
+            window.phaserGame.scene.run('ErrorScene', {message: "Request could not be processed. Please check your network connection and try again." });
         } else {
-            alert(error.message);
-            return false;
+            window.phaserGame.scene.run('ErrorScene', { message: error.message });
         }
+        return false;
     }
 }

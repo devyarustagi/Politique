@@ -352,7 +352,7 @@ export class ResidenceScene extends Phaser.Scene {
 
         oilBtn.on('pointerdown', async () => {
             if (resources.oil < this.nextLevelData.upgrade_cost){
-                alert("Insufficient resources for the upgrade.");
+                window.phaserGame.scene.run('ErrorScene', { message : "Insufficient resources for the upgrade." });
                 return;
             }
             const upgradeInfo = {
@@ -371,7 +371,7 @@ export class ResidenceScene extends Phaser.Scene {
 
         gemBtn.on('pointerdown', async () => {
             if (resources.gems < Math.floor(this.nextLevelData.upgrade_cost / 100)){
-                alert("Insufficient resources for the upgrade.");
+                window.phaserGame.scene.run('ErrorScene', { message : "Insufficient resources for the upgrade." });
                 return;
             }
             const upgradeInfo = {

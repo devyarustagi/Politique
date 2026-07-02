@@ -11,6 +11,7 @@
     import { collectResource } from '$lib/api/collectResource';
     import { LeaderboardScene } from '$lib/scenes/leaderboard';
     import { getLeaderboardData } from '$lib/api/leaderboard';
+	import { ErrorScene } from '$lib/scenes/error';
     let gameContainer;
     let game;
 
@@ -82,9 +83,10 @@
                 autoCenter: Phaser.Scale.CENTER_BOTH,
             },
             pixelArt: true, 
-            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene, BattleResultScene, LeaderboardScene]
+            scene: [ResidenceScene, ShopScene, ChooseArmyScene, BattleScene, BattleUIScene, BattleResultScene, LeaderboardScene, ErrorScene]
             }
             game = new Phaser.Game(config);
+            window.phaserGame = game;
         });
         onDestroy(() => {
             if (game) {

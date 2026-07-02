@@ -22,17 +22,14 @@ export async function finishBattle(result){
             }
             return await finishBattle();
         }
-        throw new Error("server error");
+        throw new Error("Sorry! We are having server troubles at the time.");
     }
     catch (error) {
         if (error instanceof TypeError) {
-            console.error(error)
-            alert("Request could not be processed. Please check your network connection and try again.");
-            return false;
+            window.phaserGame.scene.run('ErrorScene', { message : "Request could not be processed. Please check your network connection and try again." });
         } else {
-            console.error("Unexpected error:", error.message);
-            alert("Something went wrong. Please try again.");
-            return false;
+            window.phaserGame.scene.run('ErrorScene', { message : error.message });
         }
+        return false;
     }
 }
