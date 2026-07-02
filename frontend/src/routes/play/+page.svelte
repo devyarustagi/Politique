@@ -103,7 +103,7 @@
             const unlockedItems = []
             const residencelvl = gameinfo.info.residence.residence_level;
             gameinfo.info.buildings_master_table.forEach((buildingData) => {
-                if(buildingData.building_level === 1 && buildingData.building_name !== 'Residence'){
+                if(buildingData.building_level === 1 && buildingData.unlock_level <= resources.residenceLevel && buildingData.building_name !== 'Residence'){
                     unlockedItems.push({
                         id: buildingData.building_id, 
                         name: buildingData.building_name,
