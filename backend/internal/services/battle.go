@@ -7,11 +7,13 @@ import (
 	"github.com/devyarustagi/Politique/internal/db"
 	"github.com/devyarustagi/Politique/internal/dtors"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
-	ErrInBattle = errors.New("user already in battle, cannot start another one simultaneously")
+	ErrInBattle        = errors.New("user already in battle, cannot start another one simultaneously")
+	ErrNoOpponentFound = errors.New("no suitable opponent found for attack")
 )
 
 func Matchmake(ctx context.Context, p *pgxpool.Pool, uid uuid.UUID) (uuid.UUID, error) {
@@ -36,6 +38,9 @@ func Matchmake(ctx context.Context, p *pgxpool.Pool, uid uuid.UUID) (uuid.UUID, 
 		Column3: userInfo.ResidenceLevel,
 	})
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			err = ErrNoOpponentFound
+		}
 		return uuid.Nil, err
 	}
 	err = qtx.SetInBattle(ctx, db.SetInBattleParams{
@@ -66,6 +71,7 @@ func GetOpponentData(ctx context.Context, p *pgxpool.Pool, opponentUID uuid.UUID
 		return dtors.OpponentInfo{}, err
 	}
 	return dtors.OpponentInfo{
+		IsValid:       true,
 		Name:          opponentProfile.Username,
 		Karma:         opponentProfile.Karma,
 		VillageLayout: layout,
@@ -114,7 +120,7 @@ func FinishBattle(ctx context.Context, p *pgxpool.Pool, attackerUID uuid.UUID, r
 	err = qtx.UpdateDefenderStats(ctx, db.UpdateDefenderStatsParams{
 		UserID:      opponentUID,
 		DefensesWon: defensesWon,
-		Karma: -int32(result.KarmaGained),
+		Karma:       -int32(result.KarmaGained),
 	})
 	if err != nil {
 		return err

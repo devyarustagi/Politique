@@ -3,6 +3,7 @@ package dtors
 import "github.com/devyarustagi/Politique/internal/db"
 
 type OpponentInfo struct {
+	IsValid       bool                             `json:"is_valid"`
 	Name          string                           `json:"name"`
 	Karma         int32                            `json:"karma"`
 	VillageLayout []db.GetDefenderVillageLayoutRow `json:"village_layout"`

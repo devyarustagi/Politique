@@ -17,14 +17,22 @@ func (h *Handler) StartBattle(w http.ResponseWriter, r *http.Request) {
 	opponentUID, err := services.Matchmake(r.Context(), h.Pool, uid)
 	if err != nil {
 		log.Printf("%v",err)
-		if err == services.ErrInBattle {
-			http.Error(w, services.ErrInBattle.Error(), http.StatusConflict)
+		switch err {
+		case services.ErrInBattle:
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		case services.ErrNoOpponentFound:
+			w.WriteHeader(http.StatusOK)
+			response := dtors.OpponentInfo{
+				IsValid: false,
+			}
+			json.NewEncoder(w).Encode(response)
+			return
+		default:
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
 	}
-
 	opponentData, err := services.GetOpponentData(r.Context(), h.Pool, opponentUID)
 	if err != nil {
 		log.Printf("%v", err)
