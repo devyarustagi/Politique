@@ -2,6 +2,7 @@ package router
 
 import (
 	"os"
+	"strings"
 
 	"github.com/devyarustagi/Politique/internal/handlers"
 	"github.com/devyarustagi/Politique/internal/middleware"
@@ -14,7 +15,7 @@ func RouterSetup(pool *pgxpool.Pool) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{os.Getenv("FRONTEND_URL")},
+		AllowedOrigins:   strings.Split(os.Getenv("FRONTEND_URL"), ","),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type"},
 		AllowCredentials: true, 
