@@ -31,8 +31,8 @@
             });
 
             if (response.ok) {
-                console.log("Login successful");
-                    goto("/play")
+                await goto("/play");
+                return;
             } else {
                 if (response.status === 401) {
                     errorMessage = "Username or password do not match.";

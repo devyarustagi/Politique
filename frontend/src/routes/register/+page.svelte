@@ -35,8 +35,8 @@
             });
             
             if (response.ok) {
-                console.log("Registration successful");
-                goto('/play')
+                await goto('/play');
+                return;
             } else if (response.status === 409 ){
                 errorMsg = "Username already taken, please choose another one.";
             }

@@ -1,8 +1,12 @@
 import { api } from "$lib/api/apiRoutes.js";
-import { browser } from "$app/environment";
-import { gameinfo } from "$lib/gameState.svelte"; 
+import { gameinfo, isLoggedIn } from "$lib/gameState.svelte";
+import { goto } from "$app/navigation";
 export const ssr = false;
 export async function load({ fetch }) {
+    if (!isLoggedIn()) {
+        await goto("/register");
+        return;
+    }
     if (!gameinfo.isLoaded) {
         try {
             const response = await fetch(api.load(), {

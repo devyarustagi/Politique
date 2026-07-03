@@ -11,4 +11,11 @@ export const resources = $state({
     armyCap: 0
 })
 
+export function isLoggedIn() {
+    console.log(document.cookie);
+    return document.cookie
+        .split(';')
+        .some(row => row.trim().startsWith('isLoggedIn='));
+}
+
 export const userArmy = $state([]) 

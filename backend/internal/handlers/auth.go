@@ -42,11 +42,12 @@ func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Reque
 		return false
 	}
 	refreshToken:= base64.URLEncoding.EncodeToString(byteslice)
+	currTime:= time.Now()
     cookie1 := &http.Cookie{
         Name: "jwt-access-token",
         Value: accessToken,
 		Path: "/",
-        Expires:  time.Now().Add(time.Minute * 15), 
+        Expires:  currTime.Add(time.Minute * 15), 
         HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
     }
@@ -54,13 +55,24 @@ func issueTokens(h *Handler, uid uuid.UUID, w http.ResponseWriter, r *http.Reque
         Name: "jwt-refresh-token",
         Value: refreshToken,
 		Path: "/api/auth/refresh",
-        Expires:  time.Now().Add(time.Hour * 24 * 7), 
+        Expires:  currTime.Add(time.Hour * 24 * 7), 
         HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
     }
+	// the third cookie is only for the ui to use and is never meant for any use by the backend.
+	//It will help the frontend to check whether the user is currently logged in or not.
+	cookie3 := &http.Cookie{
+		Name: "isLoggedIn",
+		Value: "1", //value is irrelevant, the mere existence of this cookie in the browser will guarantee that the user is logged in
+		Path: "/",
+		Expires: currTime.Add(time.Hour * 24 * 7),
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	}
 
 	http.SetCookie(w, cookie1)
 	http.SetCookie(w, cookie2)
+	http.SetCookie(w, cookie3)
 	return true
 }
 

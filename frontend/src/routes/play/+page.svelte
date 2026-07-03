@@ -14,7 +14,6 @@
 	import { ErrorScene } from '$lib/scenes/error';
     let gameContainer;
     let game;
-
     onMount(() => {
         resources.oil = gameinfo.info.residence.oil;
         resources.gems = gameinfo.info.residence.gems;
