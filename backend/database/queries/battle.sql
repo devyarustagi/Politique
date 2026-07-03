@@ -28,10 +28,12 @@ UPDATE residence_properties
 SET in_battle = true, attacking_on = $2
 WHERE user_id = $1;
 
--- name: GetDefenderNameKarma :one
-SELECT username, karma FROM
-creds JOIN user_stats 
-ON creds.user_id = user_stats.user_id 
+-- name: GetDefenderInfo :one
+SELECT username, karma, oil FROM creds 
+JOIN user_stats 
+ON creds.user_id = user_stats.user_id
+JOIN residence_properties
+ON user_stats.user_id = residence_properties.user_id
 WHERE creds.user_id = $1;
 
 -- name: GetDefenderVillageLayout :many
@@ -59,7 +61,8 @@ WHERE user_id = $1;
 -- name: UpdateDefenderResidence :exec
 UPDATE residence_properties SET
 under_attack = FALSE,
-last_attacked = CURRENT_TIMESTAMP
+last_attacked = CURRENT_TIMESTAMP,
+oil = oil - $2
 WHERE user_id = $1;
 
 -- name: UpdateDefenderStats :exec

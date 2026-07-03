@@ -14,15 +14,18 @@ export class BattleUIScene extends Phaser.Scene {
         const width = this.cameras.main.width;
         const height = this.cameras.main.height;
 
-        this.add.rectangle(20, 20, 320, 80, 0x000000, 0.6).setOrigin(0, 0);
+        this.add.rectangle(20, 20, 320, 110, 0x000000, 0.6).setOrigin(0, 0);
         
         this.add.text(35, 30, `DEFENDING: ${this.battleScene.defenderName}`, {
             fontFamily: 'Arial, sans-serif', fontSize: '20px', color: '#ff4444', fontStyle: 'bold'
         }).setOrigin(0, 0);
 
-        const karmaVal = this.battleScene.defenderKarma;
-        this.add.text(35, 60, `💀 Karma: ${karmaVal}`, {
+        this.add.text(35, 60, `💀 Karma: ${this.battleScene.defenderKarma}`, {
             fontFamily: 'Arial, sans-serif', fontSize: '18px', color: '#bdc3c7', fontStyle: 'bold'
+        }).setOrigin(0, 0);
+
+        this.add.text(35, 90, `🛢️ Loot Available: ${this.battleScene.lootAvailable}`, {
+        fontFamily: 'Arial, sans-serif', fontSize: '18px', color: '#bdc3c7', fontStyle: 'bold'
         }).setOrigin(0, 0);
 
         this.add.rectangle(width / 2, 20, 160, 50, 0x000000, 0.6).setOrigin(0.5, 0);

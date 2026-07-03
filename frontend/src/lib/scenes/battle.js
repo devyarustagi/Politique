@@ -11,6 +11,7 @@ export class BattleScene extends Phaser.Scene {
     init(data) {
         this.defenderName = data.name;
         this.defenderKarma = data.karma;
+        this.lootAvailable = data.loot_available;
         this.defenderLayout = data.village_layout; 
         this.defenderLayout.forEach((building) => {
             const idx = building.type_id;
@@ -307,7 +308,7 @@ export class BattleScene extends Phaser.Scene {
         if (percent === 100) karma = 3;
         else if (percent >= 75) karma = 2;
         else if (percent >= 50) karma = 1;
-        const oil =  destroyedCount * (this.defenderKarma + 10); 
+        const oil =  Math.floor(this.lootAvailable * percent / 100); 
         this.scene.stop('BattleUIScene');
         this.scene.start('BattleResultScene', {
             percent: percent,

@@ -11,22 +11,25 @@ import (
 	"github.com/google/uuid"
 )
 
-const getDefenderNameKarma = `-- name: GetDefenderNameKarma :one
-SELECT username, karma FROM
-creds JOIN user_stats 
-ON creds.user_id = user_stats.user_id 
+const getDefenderInfo = `-- name: GetDefenderInfo :one
+SELECT username, karma, oil FROM creds 
+JOIN user_stats 
+ON creds.user_id = user_stats.user_id
+JOIN residence_properties
+ON user_stats.user_id = residence_properties.user_id
 WHERE creds.user_id = $1
 `
 
-type GetDefenderNameKarmaRow struct {
+type GetDefenderInfoRow struct {
 	Username string `json:"username"`
 	Karma    int32  `json:"karma"`
+	Oil      int32  `json:"oil"`
 }
 
-func (q *Queries) GetDefenderNameKarma(ctx context.Context, userID uuid.UUID) (GetDefenderNameKarmaRow, error) {
-	row := q.db.QueryRow(ctx, getDefenderNameKarma, userID)
-	var i GetDefenderNameKarmaRow
-	err := row.Scan(&i.Username, &i.Karma)
+func (q *Queries) GetDefenderInfo(ctx context.Context, userID uuid.UUID) (GetDefenderInfoRow, error) {
+	row := q.db.QueryRow(ctx, getDefenderInfo, userID)
+	var i GetDefenderInfoRow
+	err := row.Scan(&i.Username, &i.Karma, &i.Oil)
 	return i, err
 }
 
@@ -188,12 +191,18 @@ func (q *Queries) UpdateAttackerStats(ctx context.Context, arg UpdateAttackerSta
 const updateDefenderResidence = `-- name: UpdateDefenderResidence :exec
 UPDATE residence_properties SET
 under_attack = FALSE,
-last_attacked = CURRENT_TIMESTAMP
+last_attacked = CURRENT_TIMESTAMP,
+oil = oil - $2
 WHERE user_id = $1
 `
 
-func (q *Queries) UpdateDefenderResidence(ctx context.Context, userID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, updateDefenderResidence, userID)
+type UpdateDefenderResidenceParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Oil    int32     `json:"oil"`
+}
+
+func (q *Queries) UpdateDefenderResidence(ctx context.Context, arg UpdateDefenderResidenceParams) error {
+	_, err := q.db.Exec(ctx, updateDefenderResidence, arg.UserID, arg.Oil)
 	return err
 }
 

@@ -62,7 +62,7 @@ func GetOpponentData(ctx context.Context, p *pgxpool.Pool, opponentUID uuid.UUID
 	}
 	defer tx.Rollback(ctx)
 	qtx := q.WithTx(tx)
-	opponentProfile, err := qtx.GetDefenderNameKarma(ctx, opponentUID)
+	opponentProfile, err := qtx.GetDefenderInfo(ctx, opponentUID)
 	if err != nil {
 		return dtors.OpponentInfo{}, err
 	}
@@ -74,6 +74,7 @@ func GetOpponentData(ctx context.Context, p *pgxpool.Pool, opponentUID uuid.UUID
 		IsValid:       true,
 		Name:          opponentProfile.Username,
 		Karma:         opponentProfile.Karma,
+		Oil:           opponentProfile.Oil / 4,
 		VillageLayout: layout,
 	}, tx.Commit(ctx)
 
@@ -113,7 +114,10 @@ func FinishBattle(ctx context.Context, p *pgxpool.Pool, attackerUID uuid.UUID, r
 	if err != nil {
 		return err
 	}
-	err = qtx.UpdateDefenderResidence(ctx, opponentUID)
+	err = qtx.UpdateDefenderResidence(ctx, db.UpdateDefenderResidenceParams{
+		UserID: opponentUID,
+		Oil:    result.OilLooted,
+	})
 	if err != nil {
 		return err
 	}
