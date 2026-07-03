@@ -61,7 +61,7 @@ export class BattleResultScene extends Phaser.Scene {
                 resources.oil += this.oilLooted;
             }
             this.scene.stop();
-            this.scene.start('ResidenceScene');
+            this.scene.resume('ResidenceScene');
         });
         okBtn.on('pointerover', () => okBtn.setFillStyle(0x2ecc71));
         okBtn.on('pointerout', () => okBtn.setFillStyle(0x27ae60));
