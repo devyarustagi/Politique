@@ -196,7 +196,7 @@ export class ChooseArmyScene extends Phaser.Scene {
 
         battleBg.on('pointerdown', async () => {
             if (resources.armySz === 0) {
-                alert("You need at least one troop to battle!");
+                window.phaserGame.scene.run('ErrorScene', { message: "You need atleast one troop to battle." });
                 return;
             }
             const ok = await trainArmy();

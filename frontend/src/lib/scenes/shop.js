@@ -93,7 +93,7 @@ export class ShopScene extends Phaser.Scene {
                 console.log(item.id);
                 const response = await this.handlePurchase(item);
                 if( response === false ){ //response is an item building
-                    alert("Sorry, the new building could not be made. Pls try again.")
+                    return;
                 }
                 else{
                     resources.oil -= response.cost;
@@ -128,7 +128,7 @@ export class ShopScene extends Phaser.Scene {
         const ResidenceScene = this.scene.get("ResidenceScene");
         const coords = ResidenceScene.findEmptySpot(item.id);
         if ( coords === null ){
-            alert("New building could not be added due to lack of space on map.");
+            window.phaserGame.scene.run('ErrorScene', { message: "New building could not be added due to lack of space on the map." });
             return;
         }
         const response = await addBuilding({
