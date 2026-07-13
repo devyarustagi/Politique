@@ -36,7 +36,9 @@
         {   let index = 0;
             //rely on the invariant that the army comes from the server sorted by merc id and the mercs table aslo comes sorted
             for(const troop of gameinfo.info.mercs){ 
-                if(troop.unlock_level !== resources.residenceLevel) continue;
+                if(!(troop.unlock_level > resources.residenceLevel && troop.mercenary_level === 1)) {
+                    if(troop.unlock_level !== resources.residenceLevel) continue;
+                }
                 let baseIndex = troop.mercenary_id - 1;
                 const troopName = gameinfo.info.mercs[baseIndex].mercenary_name;
                 let idx = 0;
