@@ -210,7 +210,7 @@ const updateDefenderStats = `-- name: UpdateDefenderStats :exec
 UPDATE user_stats SET
 total_defenses = total_defenses + 1,
 defenses_won = defenses_won + $2,
-karma = karma + $3
+karma = GREATEST(karma + $3,0)
 WHERE user_id = $1
 `
 
