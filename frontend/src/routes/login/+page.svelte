@@ -1,15 +1,17 @@
-<script lang="ts">
+<script>
     import BgImage from '$lib/assets/Login.webp';
     import ErrorBox from '$lib/components/auth/error-box.svelte';
     import AuthLink from '$lib/components/auth/auth-link.svelte';
     import { api } from '$lib/api/apiRoutes.js'
 	import { goto } from '$app/navigation';
+    import { isLoggedIn } from "$lib/gameState.svelte";
+
+
+    let username = $state("");
+    let password = $state("");
+    let errorMessage = $state("");
     
-    let username: string = $state("");
-    let password: string = $state("");
-    let errorMessage: string = $state("");
-    
-    async function handleLogin(event: Event) {
+    async function handleLogin(event) {
         event.preventDefault();
         errorMessage = ""; 
         
