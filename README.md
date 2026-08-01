@@ -5,8 +5,8 @@ HOW TO RUN:
 3. cd into the project directory.
 4. Run the following commands:- 
 ```bash
-cp .env.sample.backend ./backend/.env
-cp .env.sample.frontend ./frontend/.env
+cp ./backend/.env.sample.backend ./backend/.env
+cp ./frontend/.env.sample.frontend ./frontend/.env
 cp .env.sample.database ./.env
 docker compose up --build
 ```
