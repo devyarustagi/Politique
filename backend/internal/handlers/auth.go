@@ -198,3 +198,46 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request){
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	_, ok := ContextValueToUID(r)
+	if !ok {
+		http.Error(w, "malformed uid", http.StatusUnauthorized)
+		return
+	}
+	pastTime := time.Unix(0, 0)
+
+	cookie1 := &http.Cookie{
+		Name:     "jwt-access-token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  pastTime, 
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	cookie2 := &http.Cookie{
+		Name:     "jwt-refresh-token",
+		Value:    "",
+		Path:     "/api/auth/refresh",
+		MaxAge:   -1,
+		Expires:  pastTime,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	cookie3 := &http.Cookie{
+		Name:     "isLoggedIn",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		Expires:  pastTime,
+		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	http.SetCookie(w, cookie1)
+	http.SetCookie(w, cookie2)
+	http.SetCookie(w, cookie3)
+}

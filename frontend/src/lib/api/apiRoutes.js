@@ -13,5 +13,6 @@ export const api = {
     battle: () => `${BASE}/api/user/battle`,
     upgradeBuilding: () => `${BASE}/api/user/layout/upgrade`,
     collectResource: () => `${BASE}/api/user/resources`,
-    leaderboard: () => `${BASE}/api/user/leaderboard`
+    leaderboard: () => `${BASE}/api/user/leaderboard`,
+    logout: () => `${BASE}/api/auth/logout`
 }

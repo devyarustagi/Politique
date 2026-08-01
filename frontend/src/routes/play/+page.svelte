@@ -11,9 +11,12 @@
     import { collectResource } from '$lib/api/collectResource';
     import { LeaderboardScene } from '$lib/scenes/leaderboard';
     import { getLeaderboardData } from '$lib/api/leaderboard';
-	import { ErrorScene } from '$lib/scenes/error';
+    import { ErrorScene } from '$lib/scenes/error';
+    import { logout } from '$lib/api/logout';
+	import { goto } from '$app/navigation';
     let gameContainer;
     let game;
+    
     onMount(() => {
         resources.oil = gameinfo.info.residence.oil;
         resources.gems = gameinfo.info.residence.gems;
@@ -89,6 +92,7 @@
             game = new Phaser.Game(config);
             window.phaserGame = game;
         });
+        
         onDestroy(() => {
             if (game) {
                 game.destroy(true);
@@ -136,6 +140,7 @@
             game.scene.resume("ResidenceScene");
         }
     }
+    
     async function openLeaderboard() {
         if (!game) return;
         const currScene = getActiveScene();
@@ -161,23 +166,36 @@
         const amt = await collectResource({resource: "gems"})
         resources.gems += amt.amount
     }
+    
+    async function exitGame() {
+        if (!game) return;
+        const success = await logout();
+        if (success) {
+            goto("/login");
+        } else {
+            console.error("Logout failed.");
+        }
+    }
 </script>
 
 <div class="desk-background">
     <div class="psp-device">
         
-        <div class="psp-controls left-controls d-pad-container">
-            <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn" data-tooltip="Quit / Action">💀</button>
+        <div class="psp-controls left-controls">
+            <!-- Triangle setup for the 3 remaining buttons -->
+            <div class="d-pad-container triangle-layout">
+                <div class="d-pad-row">
+                    <button class="psp-btn d-pad-btn" onclick={getOil} data-tooltip="Collect Oil">🛢️</button>
+                </div>
+                <div class="d-pad-row split-row">
+                    <button class="psp-btn d-pad-btn" onclick={getGems} data-tooltip="Collect Gems">💎</button>
+                    <button class="psp-btn d-pad-btn" onclick={openLeaderboard} data-tooltip="Leaderboard">📊</button>
+                </div>
             </div>
-            <div class="d-pad-row center-row">
-                <button class="psp-btn d-pad-btn" onclick={getOil} data-tooltip="Collect Oil">🛢️</button>
-                <div class="d-pad-center"></div> 
-                <button class="psp-btn d-pad-btn" onclick={getGems} data-tooltip="Collect Gems">💎</button>
-            </div>
-            <div class="d-pad-row">
-                <button class="psp-btn d-pad-btn" onclick={openLeaderboard} data-tooltip="Leaderboard">📊</button>
-            </div>
+
+            <!-- Shop is Green, Battle is now Blue -->
+            <button class="psp-btn action-btn green" onclick={openShop} data-tooltip="Open Shop">🛒</button>
+            <button class="psp-btn action-btn blue" onclick={chooseArmy} data-tooltip="Choose Army">⚔️</button>
         </div>
 
         <div class="psp-screen-bezel">
@@ -199,8 +217,9 @@
                     <span class="resource-value">{resources.gems}</span>
                 </div>
             </div>
-            <button class="psp-btn action-btn green" onclick={openShop} data-tooltip="Open Shop">🛒</button>
-            <button class="psp-btn action-btn red" onclick={chooseArmy} data-tooltip="Choose Army">⚔️</button>
+            
+            <!-- Exit button is now a darker red for better emoji contrast -->
+            <button class="psp-btn action-btn dark-red" onclick={exitGame} data-tooltip="Exit Game">🚪</button>
         </div>
 
     </div>
@@ -230,7 +249,6 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        /* Metallic green sweep mimicking light reflecting off curved metal */
         background: linear-gradient(
             135deg, 
             #173824 0%, 
@@ -241,15 +259,14 @@
         ); 
         padding: 30px;
         border-radius: 60px; 
-        /* Outer highlights to separate it from the desk */
         border-top: 2px solid #4a8f63; 
         border-bottom: 2px solid #030805;
         border-left: 1px solid #2e6b45;
         border-right: 1px solid #173824;
         box-shadow: 
-            0 40px 70px rgba(0,0,0,0.95), /* Heavy desk drop shadow */
-            inset 0 12px 20px rgba(255,255,255,0.15), /* Top rim shine */
-            inset 0 -15px 25px rgba(0,0,0,0.9); /* Bottom rim shadow */
+            0 40px 70px rgba(0,0,0,0.95), 
+            inset 0 12px 20px rgba(255,255,255,0.15), 
+            inset 0 -15px 25px rgba(0,0,0,0.9); 
         gap: 30px;
         width: 95vw;
         max-width: 1300px; 
@@ -266,7 +283,7 @@
         padding: 15px;
         box-shadow: 
             inset 0 0 30px rgba(0,0,0,1), 
-            0 2px 3px rgba(255,255,255,0.15), /* Inner metal lip catching light */
+            0 2px 3px rgba(255,255,255,0.15), 
             0 -1px 2px rgba(0,0,0,0.8);
         position: relative;
     }
@@ -275,7 +292,7 @@
         width: 100%; height: 100%;
         border-radius: 8px;
         overflow: hidden;
-        background: #000; /* Fallback before game loads */
+        background: #000; 
     }
 
     /* 4. The Controls Layout */
@@ -283,63 +300,64 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        align-items: center;
         width: 160px;
         height: 100%;
     }
+    
+    .left-controls {
+        gap: 20px;
+    }
 
-    .d-pad-container {
+    .right-controls { 
+        gap: 40px; 
+    }
+
+    /* Triangle Layout specific */
+    .triangle-layout {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 5px;
+        gap: 10px;
+        margin-bottom: 10px;
     }
     
-    .d-pad-row {
+    .triangle-layout .split-row {
         display: flex;
-        justify-content: center;
-        gap: 5px;
+        gap: 15px;
     }
-    
-    .center-row { align-items: center; }
-    .d-pad-center { width: 50px; height: 50px; }
 
-    .right-controls { 
-        align-items: center; 
-        gap: 40px; 
-    }
     /* 6. Resource Readout Pills */
     .resource-panel {
         display: flex;
         flex-direction: column;
         gap: 15px;
         width: 100%;
-        margin-bottom: 10px; /* Small push to separate from the action buttons */
+        margin-bottom: 10px; 
     }
 
     .resource-pill {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        /* Very dark background mimicking a turned-off LCD screen */
         background: linear-gradient(180deg, #050505 0%, #151515 100%);
-        border-radius: 30px; /* Perfect pill shape */
+        border-radius: 30px; 
         padding: 8px 15px;
-        /* Creating the embedded metal cutout look */
         border-top: 2px solid #000;
-        border-bottom: 1px solid #3a7a50; /* Catching the metallic green ambient light */
+        border-bottom: 1px solid #3a7a50; 
         box-shadow: 
-            inset 0 4px 8px rgba(0,0,0,0.9), /* Deep internal shadow */
+            inset 0 4px 8px rgba(0,0,0,0.9), 
             0 2px 5px rgba(0,0,0,0.5);
         min-width: 110px;
     }
 
     .resource-icon {
         font-size: 18px;
-        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); /* Pops the emoji off the dark screen */
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.8)); 
     }
 
     .resource-value {
-        font-family: "Courier New", Courier, monospace; /* Classic digital readout font */
+        font-family: "Courier New", Courier, monospace; 
         font-size: 0.625rem;
         font-weight: 900;
         letter-spacing: 1px;
@@ -368,14 +386,13 @@
         border: none;
         cursor: pointer;
         transition: all 0.1s;
-        position: relative; /* Added to anchor the tooltip */
+        position: relative; 
     }
 
-    /* Tooltip styling */
     .psp-btn::after {
         content: attr(data-tooltip);
         position: absolute;
-        bottom: 110%; /* Positions it slightly above the button */
+        bottom: 110%; 
         left: 50%;
         transform: translateX(-50%);
         background: rgba(5, 5, 5, 0.95);
@@ -398,7 +415,6 @@
         opacity: 1;
     }
 
-    /* Upgraded D-Pad Buttons (Premium Plastic/Metal look) */
     .d-pad-btn {
         width: 50px; height: 50px;
         border-radius: 10px; 
@@ -430,16 +446,22 @@
             inset 0 4px 10px rgba(255,255,255,0.2);
     }
     
-    /* Tweaked action button gradients for better depth */
     .action-btn.green { 
         background: radial-gradient(circle at 35% 35%, #2ecc71, #1e8248); 
         box-shadow: 0 8px 0 #104a28, 0 15px 25px rgba(0,0,0,0.7), inset 0 4px 10px rgba(255,255,255,0.3);
     }
     .action-btn.green:active { transform: translateY(8px); box-shadow: 0 0 0 #104a28, inset 0 2px 5px rgba(0,0,0,0.4); }
 
-    .action-btn.red { 
-        background: radial-gradient(circle at 35% 35%, #e74c3c, #962c21); 
-        box-shadow: 0 8px 0 #5c1811, 0 15px 25px rgba(0,0,0,0.7), inset 0 4px 10px rgba(255,255,255,0.3);
+    .action-btn.blue { 
+        background: radial-gradient(circle at 35% 35%, #3498db, #1d6fa5); 
+        box-shadow: 0 8px 0 #124a70, 0 15px 25px rgba(0,0,0,0.7), inset 0 4px 10px rgba(255,255,255,0.3);
     }
-    .action-btn.red:active { transform: translateY(8px); box-shadow: 0 0 0 #5c1811, inset 0 2px 5px rgba(0,0,0,0.4); }
+    .action-btn.blue:active { transform: translateY(8px); box-shadow: 0 0 0 #124a70, inset 0 2px 5px rgba(0,0,0,0.4); }
+
+    /* New Dark-Red style for the Exit button (less bright to maintain contrast) */
+    .action-btn.dark-red { 
+        background: radial-gradient(circle at 35% 35%, #b03a2e, #7b241c); 
+        box-shadow: 0 8px 0 #511812, 0 15px 25px rgba(0,0,0,0.7), inset 0 4px 10px rgba(255,255,255,0.3);
+    }
+    .action-btn.dark-red:active { transform: translateY(8px); box-shadow: 0 0 0 #511812, inset 0 2px 5px rgba(0,0,0,0.4); }
 </style>
