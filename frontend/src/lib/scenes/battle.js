@@ -2,10 +2,12 @@ import Phaser from "phaser";
 import grassUrl from '$lib/assets/grass.png';
 import mapUrl from '$lib/assets/map.json?url';
 import { userArmy, gameinfo, resources } from "$lib/gameState.svelte";
+import { api } from "$lib/api/apiRoutes";
 
 export class BattleScene extends Phaser.Scene {
     constructor() {
         super('BattleScene');
+        this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     }
 
     init(data) {
@@ -76,6 +78,37 @@ export class BattleScene extends Phaser.Scene {
         this.setupDeploymentInput();
 
         this.scene.launch('BattleUIScene', { battleScene: this });
+        window.addEventListener('visibilitychange', this.handleVisibilityChange);
+        this.events.once('shutdown', this.cleanupListener, this);
+        this.events.once('destroy', this.cleanupListener, this);
+    }
+
+    handleVisibilityChange() {
+        if (document.visibilityState === 'hidden') {
+            const destroyedCount = this.totalBuildings - this.activeBuildings.length;
+            const percent = Math.floor((destroyedCount / this.totalBuildings) * 100);
+            let karma = 0;
+            if (percent === 100) karma = 3;
+            else if (percent >= 75) karma = 2;
+            else if (percent >= 50) karma = 1;
+            const oil =  Math.floor(this.lootAvailable * percent / 100); 
+            const result = { 
+                karma_gained: karma,
+                oil_looted: oil
+            };
+            fetch(api.battle(), {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                "Content-Type": "application/json"
+                },
+                body: JSON.stringify(result),
+                keepalive: true
+            });
+        }
+    }
+    cleanupListener() {
+        window.removeEventListener('visibilitychange', this.handleVisibilityChange);
     }
 
     createHealthBar(x, y, width, height, currentHp, maxHp) {
